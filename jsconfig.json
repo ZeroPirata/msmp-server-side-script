@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "ESNext",
+    "lib": ["ES2015", "DOM"],
+    "moduleResolution": "Bundler",
+    "checkJs": false,
+    "strict": false,
+    "skipLibCheck": true,
+    "noImplicitAny": false
+  },
+  "include": ["src/**/*", "../../.probe/server/**/*.d.ts", "../../.probe/client/**/*.d.ts", "../../.probe/startup/**/*.d.ts", "../../.probe/packages/**/*.d.ts"]
+}

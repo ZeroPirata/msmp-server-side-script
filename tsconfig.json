@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    // MUITO IMPORTANTE: Garante compatibilidade moderna, que o GraalVM/Rhino entende
+    "target": "es2018",
+
+    // Essencial para usar `require()` (CommonJS) ou manter o escopo global em scripts KubeJS
+    // O KubeJS geralmente funciona melhor com "commonjs" ou "none" para scripts de evento.
+    "module": "commonjs",
+
+    // Usa bibliotecas mais recentes, essenciais para `Promise`, `Map`, etc.
+    "lib": ["es2018"],
+
+    "strict": true,
+    "skipLibCheck": true,
+    "outDir": "../server_scripts",
+    "rootDir": "./src",
+
+    // As configurações de typeRoots estão corretas para o ambiente KubeJS
+    "typeRoots": ["../../.probe/server", "../../.probe/client", "../../.probe/startup", "../../.probe/packages"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "../../.probe/server", "../../.probe/client", "../../.probe/startup", "../../.probe/packages"]
+}
