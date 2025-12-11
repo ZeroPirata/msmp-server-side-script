@@ -104,13 +104,8 @@ EntityEvents.death((event) => {
   }
 
   pd.remove("kubejs_damageTracker");
-  pd.remove("kubejs_enrageThreshold");
-  pd.remove("kubejs_summonMinions");
-  pd.remove("kubejs_phases");
   pd.remove("kubejs_isEnraged");
   pd.remove("kubejs_maxHealth");
-  pd.remove("kubejs_specialAbilities");
-  pd.remove("kubejs_lastEnrageTick");
   pd.remove("kubejs_bossActivated");
   pd.remove("kubejs_activationRange");
 });

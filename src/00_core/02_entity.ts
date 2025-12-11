@@ -9,12 +9,13 @@ import { $ChunkPos } from "net.minecraft.world.level.ChunkPos";
 console.log("[MSMP] Carregando core de entidade...");
 
 function basicStatusEnemys(mob: $LivingEntity, e: IEnemy): void {
-  mob.getAttribute("minecraft:generic.max_health")?.setBaseValue(e.health);
+  console.log(`[MSMP] Configurando status básico para inimigo: ${e.name}`);
+  mob.getAttribute("minecraft:generic.max_health")?.setBaseValue(e.health || 20);
   mob.health = e.health;
-  mob.getAttribute("minecraft:generic.attack_damage")?.setBaseValue(e.attack);
-  mob.getAttribute("minecraft:generic.armor")?.setBaseValue(e.armor);
-  mob.getAttribute("minecraft:generic.armor_toughness")?.setBaseValue(e.armorToughness);
-  mob.getAttribute("minecraft:generic.movement_speed")?.setBaseValue(e.speed);
+  mob.getAttribute("minecraft:generic.attack_damage")?.setBaseValue(e.attack || 2);
+  mob.getAttribute("minecraft:generic.armor")?.setBaseValue(e.armor || 0);
+  mob.getAttribute("minecraft:generic.armor_toughness")?.setBaseValue(e.armorToughness || 0);
+  mob.getAttribute("minecraft:generic.movement_speed")?.setBaseValue(e.speed || 0.25);
 }
 
 function equipEntity(entity: $LivingEntity, equipment: IEquipment): void {
@@ -79,64 +80,5 @@ function equipEntity(entity: $LivingEntity, equipment: IEquipment): void {
     entity.server.runCommandSilent(
       `data merge entity ${uuid} {HandDropChances:[${handItems[0]}f,${handItems[1]}f],ArmorDropChances:[${armorItems[0]}f,${armorItems[1]}f,${armorItems[2]}f,${armorItems[3]}f]}`
     );
-  }
-}
-
-function envokeMinions(level: $Level): void {
-  let server = level.getServer();
-  let { boss, config } = getBossActive(server);
-
-  if (!boss || !boss.isAlive()) return;
-  if (!config.summonMinions) return;
-
-  let summonMinionsPerPhase = config.summonMinionsPerPhase;
-  if (!summonMinionsPerPhase || summonMinionsPerPhase <= 0) summonMinionsPerPhase = 1;
-
-  let minionList = config.summonMinionList;
-  if (!minionList || minionList.length === 0) return;
-
-  let dimensionBoss = server.getLevel(level.getDimension());
-  for (let i = 0; i < summonMinionsPerPhase; i++) {
-    let randomIndex = randomBetween(0, minionList.length - 1);
-    let mob = minionList[randomIndex];
-    let customName = mob.name.replace(/'/g, "\\'").replace(/"/g, '\\"');
-
-    let radiusSpawnMinions = 2 + i * 3;
-    let angleSpawnMinions = (Math.PI * 2 * i) / summonMinionsPerPhase + Math.random() * 0.5;
-
-    let offsetX = boss.x + Math.cos(angleSpawnMinions) * radiusSpawnMinions;
-    let offsetZ = boss.z + Math.sin(angleSpawnMinions) * radiusSpawnMinions;
-    let safePos = getSafeSpawnPos(dimensionBoss, Math.floor(offsetX), Math.floor(offsetZ));
-
-    let x = typeof safePos.x === "function" ? safePos.getX() : safePos.x;
-    let y = typeof safePos.y === "function" ? safePos.getY() : safePos.y;
-    let z = typeof safePos.z === "function" ? safePos.getZ() : safePos.z;
-
-    server.runCommandSilent(`summon ${mob.id} ${x + 0.5} ${y + 0.5} ${z + 0.5} {CustomName:'{"text":"${customName}"}',CustomNameVisible:1b}`);
-
-    let startTime = Date.now();
-    while (Date.now() - startTime < 50) {}
-
-    let entitiesAfter = server.getEntitiesWithin(AABB.of(x - 2, y - 2, z - 2, x + 3, y + 4, z + 3));
-    let minionEntity: $LivingEntity | null = null;
-
-    for (let j = entitiesAfter.size() - 1; j >= 0; j--) {
-      let entity = entitiesAfter.get(j);
-      let living = asLiving(entity);
-      if (!living) continue;
-
-      let entityType = entity.type.toString();
-      let entityName = living.customName?.getString() || new Date().getTime().toString();
-
-      if (living && entityName === mob.name && entityType === mob.id) {
-        minionEntity = living;
-        break;
-      }
-    }
-    if (!minionEntity) continue;
-    basicStatusEnemys(minionEntity, mob);
-
-    if (!mob.equipment) return;
-    equipEntity(minionEntity, mob.equipment);
   }
 }

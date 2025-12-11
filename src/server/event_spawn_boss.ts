@@ -1,13 +1,14 @@
+import { $MinecraftServer } from "net.minecraft.server.MinecraftServer";
+
 ServerEvents.tick((e) => {
   let level = e.server;
   let msmpConfig = getMsmpConfig(level);
   if (msmpConfig === null) return;
 
-  let lastBossSpawnDay = level.persistentData.getInt(TAG_LAST_DAY);
-
   let { boss, config }: { boss: $LivingEntity; config: IMiniBoss } = getBossActive(level);
 
   if (boss && boss.isAlive() && boss.isAddedToLevel()) {
+    bossPhases(boss, config, level);
     bossActivationCheckTimer++;
     if (bossActivationCheckTimer >= 20) {
       bossActivationCheckTimer = 0;
@@ -29,6 +30,8 @@ ServerEvents.tick((e) => {
   let overworld = level.overworld();
   let isNight = overworld.isNight();
   if (!isNight) return;
+
+  let lastBossSpawnDay = level.persistentData.getInt(TAG_LAST_DAY);
 
   let day = Math.floor(overworld.getDayTime() / 24000);
   if (day < msmpConfig.MIN_DAY) return;

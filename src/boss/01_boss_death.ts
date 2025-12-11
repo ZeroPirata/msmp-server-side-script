@@ -8,6 +8,7 @@ EntityEvents.death((event) => {
   let pos = entity.blockPosition();
   if (!level.isClientSide()) {
     removeBossChunkForceLoad(level as $ServerLevel);
+    removeBossBar(server);
     pendingBossSpawn = null;
   }
   pd.remove("kubejs_customDrops");

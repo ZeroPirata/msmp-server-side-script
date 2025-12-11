@@ -1,1 +1,0 @@
-let MINIBOSSES: IMiniBoss[] = [ZARGON];

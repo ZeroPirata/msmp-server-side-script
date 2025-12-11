@@ -179,12 +179,6 @@ function spawnBossAtPosition(server: $ServerLevel, bossConfig: IMiniBoss, x: num
 
     living.persistentData.putBoolean("kubejs_customDrops", true);
     living.persistentData.putString("kubejs_damageTracker", JSON.stringify({}));
-    living.persistentData.putFloat("kubejs_enrageThreshold", bossConfig.enrageThreshold ?? 0);
-    living.persistentData.putBoolean("kubejs_summonMinions", bossConfig.summonMinions ?? false);
-    living.persistentData.putInt("kubejs_phases", bossConfig.phases ?? 1);
-    living.persistentData.putBoolean("kubejs_isEnraged", false);
-    living.persistentData.putFloat("kubejs_maxHealth", bossConfig.health);
-    living.persistentData.putString("kubejs_specialAbilities", JSON.stringify(bossConfig.specialAbilities));
     living.persistentData.putBoolean("kubejs_bossActivated", false);
     living.persistentData.putDouble("kubejs_activationRange", 24.0);
     applyBossPotions(living, bossConfig.specialAbilities);
@@ -196,6 +190,9 @@ function spawnBossAtPosition(server: $ServerLevel, bossConfig: IMiniBoss, x: num
     server.runCommandSilent(`tellraw @a "§c§l${bossConfig.name} MATERIALIZOU!"`);
     server.runCommandSilent(`tellraw @a "§ePreparem-se para a batalha!"`);
     server.runCommandSilent(`tellraw @a "§c§l⚡━━━━━━━━━━━━━━━━━━━━━━━━⚡"`);
+
+    let mineServer = server.getServer();
+    createBossBar(mineServer, `${bossConfig.name} - Aguardando...`, "PURPLE", "PROGRESS");
     setBossActive(living, bossConfig);
   });
 }

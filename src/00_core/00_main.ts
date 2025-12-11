@@ -12,7 +12,9 @@ let pendingBossSpawn: {
 
 let VIDEO_TAG = "msmp_player_watched_video";
 let VIDEO_URL = "https://www.youtube.com/watch?v=9E15RZINDFI";
-let TAG_LAST_DAY = "LAST_BOSS_SPAWN_DAY";
+const TAG_LAST_DAY = "msmp_last_boss_spawn_day";
+
+let activeBossBar: $CustomBossEvent | null = null;
 
 let CONFIG_KEY = "msmp_configs";
 let DEFAULT_CONFIG = {
@@ -21,6 +23,5 @@ let DEFAULT_CONFIG = {
   MIN_DISTANCE: 0,
   MAX_DISTANCE: 10,
   MIN_DAY: 1,
-  CHANCE_PERCENT: 1.0,
-  LAST_BOSS_SPAWN_DAY: -1
+  CHANCE_PERCENT: 1.0
 };
