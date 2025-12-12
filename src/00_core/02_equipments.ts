@@ -1,4 +1,4 @@
-const EquipmentSlot = Java.loadClass("net.minecraft.world.entity.EquipmentSlot");
+let EquipmentSlot = Java.loadClass("net.minecraft.world.entity.EquipmentSlot");
 
 function applyEquipmentToBoss(boss: $LivingEntity, equipment: IEquipment): void {
   console.log(`[EQUIPMENT] Aplicando equipamento ao boss...`);

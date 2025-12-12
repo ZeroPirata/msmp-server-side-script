@@ -1,5 +1,5 @@
 // ===== MÃE MOSCA - Boss de Enxame =====
-const MAE_MOSCA: IMiniBoss = {
+let MAE_MOSCA: IMiniBoss = {
   id: "born_in_chaos_v1:bloody_gadfly",
   name: "§4🦟 Mãe das Moscas 🦟",
   health: 1200,

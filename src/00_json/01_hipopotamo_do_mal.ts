@@ -1,4 +1,4 @@
-const HIPOPOTAMO_DO_MAL: IMiniBoss = {
+let HIPOPOTAMO_DO_MAL: IMiniBoss = {
   id: "irons_spellbooks:necromancer",
   name: "§5☠ Hipopótamo do Mal ☠",
   health: 2000,

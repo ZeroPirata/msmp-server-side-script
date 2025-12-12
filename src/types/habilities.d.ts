@@ -1,8 +1,36 @@
-type PhaseAbilityType = "summon_minions" | "heal" | "buff_attributes" | "shoot_projectiles" | "aoe_damage" | "teleport" | "spawn_totems" | "weather_change" | "potion_effects" | "enrage";
+type PhaseAbilityType =
+  | "summon_minions"
+  | "heal"
+  | "buff_attributes"
+  | "shoot_projectiles"
+  | "aoe_damage"
+  | "teleport"
+  | "spawn_totems"
+  | "weather_change"
+  | "potion_effects"
+  | "enrage"
+  | "crystal_phase";
+
+interface ICrystalConfig {
+  crystalBlockType: string; // Ex: "minecraft:end_crystal", "minecraft:beacon"
+  crystalCount: number; // Quantos cristais spawnar
+  distanceFromBoss: number; // Distância em blocos do boss
+  minionSpawnPerCrystal?: IMinionConfig[]; // Minions que spawnam em cada cristal
+  damageBuffPerSecond: number; // Buff de dano por segundo ativo (max 10)
+  maxDamageBuff: number; // Cap de dano (padrão: 10)
+  respawnTime?: number; // Ticks para cristal respawnar (0 = não respawna)
+  particleEffect?: string; // Efeito de partícula no cristal
+  protectionRadius?: number; // Raio onde players tomam dano perto do cristal
+}
 
 interface IPhaseAbility {
   type: PhaseAbilityType;
   config?: any;
+}
+
+interface ICrystalPhaseAbility extends IPhaseAbility {
+  type: "crystal_phase";
+  config: ICrystalConfig;
 }
 
 interface ISummonMinionsAbility extends IPhaseAbility {
@@ -89,6 +117,13 @@ interface IEnrageAbility extends IPhaseAbility {
     speedMultiplier: number;
     particleEffect?: boolean;
   };
+}
+
+interface ICrystalData {
+  pos: $BlockPos;
+  activeTime: number; // Ticks que ficou ativo
+  destroyed: boolean;
+  respawnAt?: number; // Tick de respawn
 }
 
 interface IBossPhase {

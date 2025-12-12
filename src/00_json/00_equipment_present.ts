@@ -1,4 +1,4 @@
-const EQUIPMENT_PRESETS: { [key: string]: IEquipmentPreset } = {
+let EQUIPMENT_PRESETS: { [key: string]: IEquipmentPreset } = {
   warrior: {
     name: "Guerreiro",
     description: "Boss corpo a corpo com armadura pesada",

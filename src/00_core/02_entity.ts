@@ -20,6 +20,7 @@ function basicStatusEnemys(mob: $LivingEntity, e: IEnemy): void {
 
 function equipEntity(entity: $LivingEntity, equipment: IEquipment): void {
   let uuid = entity.stringUuid;
+  if (!equipment) return;
 
   // Mão principal (espada, arco, etc)
   if (equipment.mainHand) {

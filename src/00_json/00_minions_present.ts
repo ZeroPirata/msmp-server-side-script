@@ -1,5 +1,5 @@
 // ===== PRESETS DE MINIONS =====
-const MINION_PRESETS: { [key: string]: IMinionConfig } = {
+let MINION_PRESETS: { [key: string]: IMinionConfig } = {
   // Minion guerreiro básico
   warrior_minion: {
     id: "minecraft:zombie",

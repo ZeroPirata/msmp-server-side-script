@@ -12,7 +12,7 @@ let pendingBossSpawn: {
 
 let VIDEO_TAG = "msmp_player_watched_video";
 let VIDEO_URL = "https://www.youtube.com/watch?v=9E15RZINDFI";
-const TAG_LAST_DAY = "msmp_last_boss_spawn_day";
+let TAG_LAST_DAY = "msmp_last_boss_spawn_day";
 
 let activeBossBar: $CustomBossEvent | null = null;
 

@@ -1,4 +1,4 @@
-const RANDOM_WARRIOR_EQUIPMENT: IEquipment = {
+let RANDOM_WARRIOR_EQUIPMENT: IEquipment = {
   mainHand: {
     id: "minecraft:netherite_sword",
     enchantments: {

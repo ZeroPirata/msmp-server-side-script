@@ -1,5 +1,5 @@
 // ===== NUNU - Boss de Gelo =====
-const NUNU: IMiniBoss = {
+let NUNU: IMiniBoss = {
   id: "twilightforest:yeti",
   name: "§b❄ Willump, full ap...❄",
   health: 1800,

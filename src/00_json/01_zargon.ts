@@ -1,4 +1,4 @@
-const ZARGON: IMiniBoss = {
+let ZARGON: IMiniBoss = {
   id: "cataclysm:royal_draugr",
   name: "⚔ Zargon, O Primeiro. ⚔",
   health: 5000,

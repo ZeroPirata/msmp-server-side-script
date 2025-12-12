@@ -1,4 +1,4 @@
-const TWO_PHASE_BOSS: IMiniBoss = {
+let TWO_PHASE_BOSS: IMiniBoss = {
   id: "minecraft:skeleton",
   name: "§6Arqueiro das Sombras",
   health: 800,

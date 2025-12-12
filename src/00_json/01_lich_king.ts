@@ -1,4 +1,4 @@
-const LICH_KING: IMiniBoss = {
+let LICH_KING: IMiniBoss = {
   id: "minecraft:wither_skeleton",
   name: "☠ Boundaries ☠",
   health: 2000,

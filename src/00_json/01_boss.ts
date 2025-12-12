@@ -1,4 +1,4 @@
-const SIMPLE_BOSS: IMiniBoss = {
+let SIMPLE_BOSS: IMiniBoss = {
   id: "minecraft:zombie",
   name: "§eZumbi Forte",
   health: 500,
