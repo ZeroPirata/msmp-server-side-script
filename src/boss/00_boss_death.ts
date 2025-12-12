@@ -5,6 +5,7 @@ EntityEvents.death((event) => {
   let pd = entity.persistentData;
 
   if (!pd.contains("kubejs_customDrops")) return;
+
   let msmpConfig = getMsmpConfig(server);
   if (msmpConfig === null) {
     console.log(`[BOSS DEATH] ERRO: msmpConfig é null!`);
@@ -15,6 +16,27 @@ EntityEvents.death((event) => {
   if (!boss || !config) {
     console.log(`[BOSS DEATH] ERRO: Boss ou config não encontrado!`);
     return;
+  }
+
+  let bossUUID = entity.uuid.toString();
+  if (damageAccumulator.has(bossUUID)) {
+    let tracker = damageAccumulator.get(bossUUID);
+    let existingTracker = pd.getString("kubejs_damageTracker");
+    let fullTracker: DamageTracker = existingTracker ? JSON.parse(existingTracker) : {};
+
+    tracker.forEach((damage, playerUUID) => {
+      if (!fullTracker[playerUUID]) {
+        let player = server.getPlayerByUUID(playerUUID);
+        fullTracker[playerUUID] = {
+          playerName: player?.username || "Desconhecido",
+          damage: 0
+        };
+      }
+      fullTracker[playerUUID].damage += damage;
+    });
+
+    pd.putString("kubejs_damageTracker", JSON.stringify(fullTracker));
+    damageAccumulator.delete(bossUUID);
   }
 
   if (pd.contains("kubejs_damageTracker")) {
@@ -46,67 +68,68 @@ EntityEvents.death((event) => {
       winnerMessages.push("§a=======================================");
 
       let activePlayers: string[] = [];
-      let chestsCreated = 0;
 
-      ranking.forEach((data, index) => {
-        let rank = index + 1;
-        let damagePercent = data.damage / totalDamage;
-        let rankDisplay = rankingPlayersRaid(rank);
-        let damageP = (damagePercent * 100).toFixed(1);
-        winnerMessages.push(`${rankDisplay} §r- §b${data.playerName} §7(Dano: ${damageP}%)`);
+      server.scheduleInTicks(5, () => {
+        ranking.forEach((data, index) => {
+          let rank = index + 1;
+          let damagePercent = data.damage / totalDamage;
+          let rankDisplay = rankingPlayersRaid(rank);
+          let damageP = (damagePercent * 100).toFixed(1);
+          winnerMessages.push(`${rankDisplay} §r- §b${data.playerName} §7(Dano: ${damageP}%)`);
 
-        let lootTableSuffix = demageLootCalculate(damagePercent);
-        let lootTable = `kubejs:${config.lootrName}_${lootTableSuffix}`;
-        let offsetX = index * 2;
-        let chestPos = new BlockPos(bossPos.x + offsetX, bossPos.y + 1, bossPos.z);
+          let lootTableSuffix = demageLootCalculate(damagePercent);
+          let lootTable = `kubejs:${config.lootrName}_${lootTableSuffix}`;
+          let offsetX = index * 2;
+          let chestPos = new BlockPos(bossPos.x + offsetX, bossPos.y + 1, bossPos.z);
 
-        // Cria o baú
-        let setblockCommand = `setblock ${chestPos.x} ${chestPos.y} ${chestPos.z} lootr:lootr_chest{LootTable:"${lootTable}",CustomName:'{"text":"§6${data.playerName}"}'} replace`;
-        server.runCommandSilent(setblockCommand);
+          // Cria o baú
+          let setblockCommand = `setblock ${chestPos.x} ${chestPos.y} ${chestPos.z} lootr:lootr_chest{LootTable:"${lootTable}",CustomName:'{"text":"§6${data.playerName}"}'} replace`;
+          server.runCommandSilent(setblockCommand);
 
-        let chestKey = getChestKey(chestPos);
-        let key = getPlayerChestKey(chestKey, data.uuid);
+          let chestKey = getChestKey(chestPos);
+          let key = getPlayerChestKey(chestKey, data.uuid);
 
-        let save: PlayerChestData = {
-          lootTable: lootTable,
-          damagePercent: damagePercent,
-          used: false,
-          dropMultiplier: dropMultiplier
-        };
+          let save: PlayerChestData = {
+            lootTable: lootTable,
+            damagePercent: damagePercent,
+            used: false,
+            dropMultiplier: dropMultiplier
+          };
 
-        server.persistentData.putString(key, JSON.stringify(save));
+          server.persistentData.putString(key, JSON.stringify(save));
+          saveChestKey(data.uuid, { pos: chestPos, ticks: 0 }, server);
+          activePlayers.push(data.uuid);
 
-        saveChestKey(data.uuid, { pos: chestPos, ticks: 0 }, server);
-        activePlayers.push(data.uuid);
-        chestsCreated++;
+          // ✅ Partículas reduzidas
+          server.runCommandSilent(`particle minecraft:totem_of_undying ${chestPos.x + 0.5} ${chestPos.y + 1} ${chestPos.z + 0.5} 0.2 0.2 0.2 0.05 15 force @a`);
+        });
 
-        // Partículas
-        let realPlayer = level.getPlayerByUUID(data.uuid);
-        if (realPlayer) {
-          server.runCommandSilent(`particle minecraft:totem_of_undying ${chestPos.x + 0.5} ${chestPos.y + 1} ${chestPos.z + 0.5} 0.3 0.3 0.3 0.1 30 force ${data.playerName}`);
-        } else {
-          server.runCommandSilent(`particle minecraft:totem_of_undying ${chestPos.x + 0.5} ${chestPos.y + 1} ${chestPos.z + 0.5} 0.3 0.3 0.3 0.1 30 force @a`);
-        }
-      });
+        saveActiveChestPlayers(activePlayers, server);
+        winnerMessages.push("§a=======================================");
 
-      saveActiveChestPlayers(activePlayers, server);
-      winnerMessages.push("§a=======================================");
-      winnerMessages.forEach((line) => {
-        server.runCommandSilent(`tellraw @a[distance=..64] "${line}"`);
-      });
+        // ✅ Mensagens só para players próximos
+        winnerMessages.forEach((line) => {
+          server.runCommandSilent(`execute positioned ${bossPos.x} ${bossPos.y} ${bossPos.z} run tellraw @a[distance=..64] "${line}"`);
+        });
 
-      let minutes = msmpConfig.DELAY_TICKS / 1200;
-      activePlayers.forEach((playerName) => {
-        server.runCommandSilent(`tellraw ${playerName} "§eO baú irá desaparecer em ${minutes} minutos!"`);
+        let minutes = msmpConfig.DELAY_TICKS / 1200;
+        activePlayers.forEach((uuid) => {
+          let player = server.getPlayerByUUID(uuid);
+          if (player) {
+            player.tell(`§eO baú irá desaparecer em ${minutes} minutos!`);
+          }
+        });
       });
     }
   }
 
+  // ✅ Cleanup imediato
   pd.remove("kubejs_damageTracker");
   pd.remove("kubejs_isEnraged");
   pd.remove("kubejs_maxHealth");
   pd.remove("kubejs_bossActivated");
   pd.remove("kubejs_activationRange");
+
   for (let i = 0; i < 10; i++) {
     pd.remove(`phase_${i}_crystals`);
     pd.remove(`phase_${i}_crystalDamage`);
@@ -114,18 +137,12 @@ EntityEvents.death((event) => {
     pd.remove(`phase_${i}_inRitual`);
     pd.remove(`phase_${i}_ritualStartTick`);
     pd.remove(`phase_${i}_baseDamage`);
+
     for (let j = 0; j < 20; j++) {
       pd.remove(`phase_${i}_ability_${j}_lastTick`);
     }
   }
+
   pd.remove("currentPhase");
   pd.remove("lastPhaseChangeTick");
-  let chunkX = pd.getInt("kubejs_bossChunkX");
-  let chunkZ = pd.getInt("kubejs_bossChunkZ");
-  if (pd.contains("kubejs_bossChunkX")) {
-    let level = living.level as $ServerLevel;
-    level.setChunkForced(chunkX, chunkZ, false);
-    pd.remove("kubejs_bossChunkX");
-    pd.remove("kubejs_bossChunkZ");
-  }
 });

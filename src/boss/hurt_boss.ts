@@ -9,16 +9,14 @@ EntityEvents.afterHurt((event) => {
   let player = source;
   let damage = event.damage;
 
-  let trackerJson = pd.getString("kubejs_damageTracker");
-  let tracker: DamageTracker = trackerJson ? JSON.parse(trackerJson) : {};
+  let bossUUID = e.uuid.toString();
+  let playerUUID = player.uuid.toString();
 
-  let uuid = player.uuid.toString();
-  if (!tracker[uuid]) {
-    tracker[uuid] = {
-      playerName: player.username,
-      damage: 0
-    };
+  if (!damageAccumulator.has(bossUUID)) {
+    damageAccumulator.set(bossUUID, new Map());
   }
-  tracker[uuid].damage += damage;
-  pd.putString("kubejs_damageTracker", JSON.stringify(tracker));
+
+  let bossTracker = damageAccumulator.get(bossUUID);
+  let currentDamage = bossTracker.get(playerUUID) || 0;
+  bossTracker.set(playerUUID, currentDamage + damage);
 });

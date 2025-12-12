@@ -15,6 +15,8 @@ let VIDEO_URL = "https://www.youtube.com/watch?v=9E15RZINDFI";
 let TAG_LAST_DAY = "msmp_last_boss_spawn_day";
 
 let activeBossBar: $CustomBossEvent | null = null;
+let damageAccumulator = new Map<string, Map<string, number>>(); // bossUUID -> playerUUID -> damage
+// Commands
 
 let CONFIG_KEY = "msmp_configs";
 let DEFAULT_CONFIG = {
