@@ -4,7 +4,6 @@ EntityEvents.death((event) => {
   let server = event.server;
   let pd = entity.persistentData;
   if (!pd.contains("kubejs_customDrops")) return;
-
   let pos = entity.blockPosition();
   if (!level.isClientSide()) {
     removeBossChunkForceLoad(level as $ServerLevel);

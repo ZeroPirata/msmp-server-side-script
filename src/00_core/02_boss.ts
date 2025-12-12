@@ -61,11 +61,6 @@ function activateBoss(boss: $LivingEntity, player: $ServerPlayer, level: $Server
   level.runCommandSilent(`particle minecraft:flame ${boss.x} ${boss.y} ${boss.z} 1 1 1 0.1 50 force`);
   level.runCommandSilent(`playsound minecraft:entity.ender_dragon.growl hostile @a ${boss.x} ${boss.y} ${boss.z} 2 0.8`);
 
-  level.runCommandSilent(`tellraw @a "§c§l⚠━━━━━━━━━━━━━━━━━━━━━━━━⚠"`);
-  level.runCommandSilent(`tellraw @a "§c§l${bossName} DESPERTOU!"`);
-  level.runCommandSilent(`tellraw @a "§e${player.name.getString()} provocou a ira do boss!"`);
-  level.runCommandSilent(`tellraw @a "§c§l⚠━━━━━━━━━━━━━━━━━━━━━━━━⚠"`);
-
   boss.potionEffects.add("minecraft:strength", 200, 1, false, false);
   boss.potionEffects.add("minecraft:speed", 200, 0, false, false);
 }
@@ -103,7 +98,6 @@ function prepareBossSpawn(server: $ServerLevel, bossConfig: IMiniBoss, x: number
 
   server.runCommandSilent(`tellraw @a "§6§l§m--------------------------------"`);
   server.runCommandSilent(`tellraw @a "§c§l💥 ALERTA DE INVASÃO IMINENTE! 💥"`);
-  server.runCommandSilent(`tellraw @a "§e${bossConfig.name} está prestes a aparecer..."`);
   server.runCommandSilent(`tellraw @a "§6LOCALIZAÇÃO: X:§a${Math.floor(x)}§6 | Y:§a${Math.floor(y)}§6 | Z:§a${Math.floor(z)}"`);
   server.runCommandSilent(`tellraw @a "§6§l§m--------------------------------"`);
 }
@@ -154,6 +148,7 @@ function spawnBossAtPosition(server: $ServerLevel, bossConfig: IMiniBoss, x: num
     boss.nbt.putInt("DespawnDelay", -1);
     boss.nbt.putBoolean("CanPickUpLoot", false);
     boss.nbt.putBoolean("NoAI", true);
+    boss.nbt.putBoolean("CustomPersistenceRequired", true);
 
     boss.setPos(x + 0.5, y, z + 0.5);
     boss.setCustomName(bossConfig.name);
@@ -181,15 +176,15 @@ function spawnBossAtPosition(server: $ServerLevel, bossConfig: IMiniBoss, x: num
     living.persistentData.putString("kubejs_damageTracker", JSON.stringify({}));
     living.persistentData.putBoolean("kubejs_bossActivated", false);
     living.persistentData.putDouble("kubejs_activationRange", 24.0);
+    living.persistentData.putInt("kubejs_bossChunkX", chunkX);
+    living.persistentData.putInt("kubejs_bossChunkZ", chunkZ);
     applyBossPotions(living, bossConfig.specialAbilities);
     boss.spawn();
+    server.setChunkForced(chunkX, chunkZ, true);
+
     server.runCommandSilent(`particle minecraft:explosion_emitter ${x} ${y + 1} ${z} 1 1 1 0.5 10 force`);
     server.runCommandSilent(`particle minecraft:soul_fire_flame ${x} ${y} ${z} 2 2 2 0.1 100 force`);
     server.runCommandSilent(`playsound minecraft:entity.wither.spawn hostile @a ${x} ${y} ${z} 3 0.8`);
-    server.runCommandSilent(`tellraw @a "§c§l⚡━━━━━━━━━━━━━━━━━━━━━━━━⚡"`);
-    server.runCommandSilent(`tellraw @a "§c§l${bossConfig.name} MATERIALIZOU!"`);
-    server.runCommandSilent(`tellraw @a "§ePreparem-se para a batalha!"`);
-    server.runCommandSilent(`tellraw @a "§c§l⚡━━━━━━━━━━━━━━━━━━━━━━━━⚡"`);
 
     let mineServer = server.getServer();
     createBossBar(mineServer, `${bossConfig.name} - Aguardando...`, "PURPLE", "PROGRESS");

@@ -9,7 +9,6 @@ import { $ChunkPos } from "net.minecraft.world.level.ChunkPos";
 console.log("[MSMP] Carregando core de entidade...");
 
 function basicStatusEnemys(mob: $LivingEntity, e: IEnemy): void {
-  console.log(`[MSMP] Configurando status básico para inimigo: ${e.name}`);
   mob.getAttribute("minecraft:generic.max_health")?.setBaseValue(e.health || 20);
   mob.health = e.health;
   mob.getAttribute("minecraft:generic.attack_damage")?.setBaseValue(e.attack || 2);

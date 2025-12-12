@@ -2,24 +2,17 @@ ServerEvents.tick((event) => {
   let server = event.server;
   let msmpConfig = getMsmpConfig(server);
   if (msmpConfig === null) return;
-
   if (server.tickCount % 20 !== 0) return;
-
   let activePlayers = getActiveChestPlayers(server);
   if (activePlayers.length === 0) return;
-
   let toRemove: string[] = [];
-
   activePlayers.forEach((playerName) => {
     let data = loadChestKey(playerName, server);
     if (!data) {
       toRemove.push(playerName);
       return;
     }
-
     data.ticks += 20;
-
-    // Verifica se expirou
     if (data.ticks >= msmpConfig.DELAY_TICKS) {
       let pos = data.pos;
       server.runCommandSilent(`setblock ${Math.floor(pos.x)} ${Math.floor(pos.y)} ${Math.floor(pos.z)} minecraft:air`);
@@ -42,7 +35,6 @@ ServerEvents.tick((event) => {
     }
   });
 
-  // Remove jogadores cujos baús expiraram
   if (toRemove.length > 0) {
     let newActivePlayers = activePlayers.filter((name) => !toRemove.includes(name));
     saveActiveChestPlayers(newActivePlayers, server);

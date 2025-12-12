@@ -4,7 +4,6 @@ EntityEvents.death((event) => {
   let server = event.server;
   let pd = entity.persistentData;
 
-  // Verifica se é um boss customizado
   if (!pd.contains("kubejs_customDrops")) return;
   let msmpConfig = getMsmpConfig(server);
   if (msmpConfig === null) {
@@ -93,7 +92,7 @@ EntityEvents.death((event) => {
       saveActiveChestPlayers(activePlayers, server);
       winnerMessages.push("§a=======================================");
       winnerMessages.forEach((line) => {
-        server.runCommandSilent(`tellraw @a "${line}"`);
+        server.runCommandSilent(`tellraw @a[distance=..64] "${line}"`);
       });
 
       let minutes = msmpConfig.DELAY_TICKS / 1200;
@@ -108,4 +107,25 @@ EntityEvents.death((event) => {
   pd.remove("kubejs_maxHealth");
   pd.remove("kubejs_bossActivated");
   pd.remove("kubejs_activationRange");
+  for (let i = 0; i < 10; i++) {
+    pd.remove(`phase_${i}_crystals`);
+    pd.remove(`phase_${i}_crystalDamage`);
+    pd.remove(`phase_${i}_crystalsCleared`);
+    pd.remove(`phase_${i}_inRitual`);
+    pd.remove(`phase_${i}_ritualStartTick`);
+    pd.remove(`phase_${i}_baseDamage`);
+    for (let j = 0; j < 20; j++) {
+      pd.remove(`phase_${i}_ability_${j}_lastTick`);
+    }
+  }
+  pd.remove("currentPhase");
+  pd.remove("lastPhaseChangeTick");
+  let chunkX = pd.getInt("kubejs_bossChunkX");
+  let chunkZ = pd.getInt("kubejs_bossChunkZ");
+  if (pd.contains("kubejs_bossChunkX")) {
+    let level = living.level as $ServerLevel;
+    level.setChunkForced(chunkX, chunkZ, false);
+    pd.remove("kubejs_bossChunkX");
+    pd.remove("kubejs_bossChunkZ");
+  }
 });

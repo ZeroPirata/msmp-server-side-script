@@ -16,7 +16,6 @@ function removeChestKey(playerName: string, server: $MinecraftServer): void {
 function loadChestKey(playerName: string, server: $MinecraftServer): ChestKeyData | null {
   let key = `chest_key_${playerName}`;
   if (!server.persistentData.contains(key)) return null;
-
   let data = JSON.parse(server.persistentData.getString(key));
   return {
     pos: new BlockPos(data.x, data.y, data.z),
