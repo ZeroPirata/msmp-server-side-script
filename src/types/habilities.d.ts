@@ -17,6 +17,8 @@ interface ICrystalConfig {
   crystalCount: number; // Quantos cristais spawnar
   distanceFromBoss: number; // Distância em blocos do boss
   minionSpawnPerCrystal?: IMinionConfig[]; // Minions que spawnam em cada cristal
+  ritualHeight: 4; // Altura do ritual (blocos)
+  maxRitualTime: 3600; // 3 minutos antes do timeout
   damageBuffPerSecond: number; // Buff de dano por segundo ativo (max 10)
   maxDamageBuff: number; // Cap de dano (padrão: 10)
   respawnTime?: number; // Ticks para cristal respawnar (0 = não respawna)
