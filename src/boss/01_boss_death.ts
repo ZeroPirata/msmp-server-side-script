@@ -6,6 +6,9 @@ EntityEvents.death((event) => {
   if (!pd.contains("kubejs_customDrops")) return;
   let pos = entity.blockPosition();
   if (!level.isClientSide()) {
+    server.scheduleInTicks(2, () => {
+      level.runCommandSilent(`execute positioned ${pos.x} ${pos.y} ${pos.z} run kill @e[type=item,distance=..5]`);
+    });
     removeBossChunkForceLoad(level as $ServerLevel);
     removeBossBar(server);
     pendingBossSpawn = null;

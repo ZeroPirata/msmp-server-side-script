@@ -144,6 +144,7 @@ function spawnBossAtPosition(server: $ServerLevel, bossConfig: IMiniBoss, x: num
       return;
     }
 
+    boss.nbt.putString("DeathLootTable", "minecraft:empty");
     boss.nbt.putByte("PersistenceRequired", 1);
     boss.nbt.putInt("DespawnDelay", -1);
     boss.nbt.putBoolean("CanPickUpLoot", false);

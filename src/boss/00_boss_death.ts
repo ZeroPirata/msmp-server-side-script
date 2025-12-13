@@ -114,7 +114,7 @@ EntityEvents.death((event) => {
 
         let minutes = msmpConfig.DELAY_TICKS / 1200;
         activePlayers.forEach((uuid) => {
-          let player = server.getPlayerList().getPlayer(playerUUID);
+          let player = server.getPlayerList().getPlayer(uuid);
           if (player) {
             player.tell(`§eO baú irá desaparecer em ${minutes} minutos!`);
           }
