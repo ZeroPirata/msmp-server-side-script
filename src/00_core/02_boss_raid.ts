@@ -437,10 +437,27 @@ function spawnCrystals(boss: $LivingEntity, config: ICrystalConfig, level: $Serv
     }
     level.runCommandSilent(`particle minecraft:flash ${crystalX + 0.5} ${finalSpawnY} ${crystalZ + 0.5} 0 0 0 0 1 force @a`);
 
+    let barrierY = finalSpawnY - 1;
+    for (let y = 0; y < 4; y++) {
+      let currentY = barrierY + y;
+      // Parede Norte (Z-2)
+      level.runCommandSilent(`fill ${crystalX - 2} ${currentY} ${crystalZ - 2} ${crystalX + 2} ${currentY} ${crystalZ - 2} minecraft:iron_bars`);
+      // Parede Sul (Z+2)
+      level.runCommandSilent(`fill ${crystalX - 2} ${currentY} ${crystalZ + 2} ${crystalX + 2} ${currentY} ${crystalZ + 2} minecraft:iron_bars`);
+      // Parede Oeste (X-2)
+      level.runCommandSilent(`fill ${crystalX - 2} ${currentY} ${crystalZ - 1} ${crystalX - 2} ${currentY} ${crystalZ + 1} minecraft:iron_bars`);
+      // Parede Leste (X+2)
+      level.runCommandSilent(`fill ${crystalX + 2} ${currentY} ${crystalZ - 1} ${crystalX + 2} ${currentY} ${crystalZ + 1} minecraft:iron_bars`);
+    }
+    level.runCommandSilent(`fill ${crystalX - 2} ${barrierY + 3} ${crystalZ - 2} ${crystalX + 2} ${barrierY + 3} ${crystalZ + 2} minecraft:iron_bars`);
+
     crystalPositions.push({
       x: crystalX + 0.5,
       y: finalSpawnY,
       z: crystalZ + 0.5,
+      blockX: crystalX,
+      blockZ: crystalZ,
+      barrierY: barrierY,
       spawnTick: level.server.getTickCount(),
       destroyed: false,
       respawnAt: -1,
@@ -544,6 +561,14 @@ function updateCrystalSystem(boss: $LivingEntity, config: ICrystalConfig, level:
       }
       crystal.destroyed = true;
       crystal.respawnAt = config.respawnTime ? currentTick + config.respawnTime : -1;
+
+      if (crystal.blockX !== undefined && crystal.blockZ !== undefined && crystal.barrierY !== undefined) {
+        let bx = crystal.blockX;
+        let bz = crystal.blockZ;
+        let by = crystal.barrierY;
+        level.runCommandSilent(`fill ${bx - 2} ${by} ${bz - 2} ${bx + 2} ${by + 3} ${bz + 2} minecraft:air replace minecraft:iron_bars`);
+      }
+
       level.runCommandSilent(`particle minecraft:explosion ${crystal.x} ${crystal.y} ${crystal.z} 1 1 1 0 10 force @a`);
       level.runCommandSilent(`playsound minecraft:entity.generic.explode hostile @a[distance=..64] ${crystal.x} ${crystal.y} ${crystal.z} 1 1.2`);
       let destroyedCount = crystals.filter((c: any) => c.destroyed).length;
@@ -555,6 +580,23 @@ function updateCrystalSystem(boss: $LivingEntity, config: ICrystalConfig, level:
       crystal.destroyed = false;
       crystal.spawnTick = currentTick;
       crystal.cachedActive = true;
+
+      // Recriar barreira quando cristal respawna (cubo 5x5x4 completo)
+      if (crystal.blockX !== undefined && crystal.blockZ !== undefined && crystal.barrierY !== undefined) {
+        let bx = crystal.blockX;
+        let bz = crystal.blockZ;
+        let by = crystal.barrierY;
+        for (let y = 0; y < 4; y++) {
+          let currentY = by + y;
+          level.runCommandSilent(`fill ${bx - 2} ${currentY} ${bz - 2} ${bx + 2} ${currentY} ${bz - 2} minecraft:iron_bars`);
+          level.runCommandSilent(`fill ${bx - 2} ${currentY} ${bz + 2} ${bx + 2} ${currentY} ${bz + 2} minecraft:iron_bars`);
+          level.runCommandSilent(`fill ${bx - 2} ${currentY} ${bz - 1} ${bx - 2} ${currentY} ${bz + 1} minecraft:iron_bars`);
+          level.runCommandSilent(`fill ${bx + 2} ${currentY} ${bz - 1} ${bx + 2} ${currentY} ${bz + 1} minecraft:iron_bars`);
+        }
+        // Fechar o topo
+        level.runCommandSilent(`fill ${bx - 2} ${by + 3} ${bz - 2} ${bx + 2} ${by + 3} ${bz + 2} minecraft:iron_bars`);
+      }
+
       level.runCommandSilent(`particle minecraft:flash ${crystal.x} ${crystal.y} ${crystal.z} 0 0 0 0 1 force @a`);
       level.runCommandSilent(`playsound minecraft:block.beacon.activate hostile @a[distance=..64] ${crystal.x} ${crystal.y} ${crystal.z} 1 1`);
       level.runCommandSilent(`tellraw @a[distance=..64] "§c§l⚠ Um cristal renasceu!"`);
@@ -627,50 +669,43 @@ function updateCrystalSystem(boss: $LivingEntity, config: ICrystalConfig, level:
       }
     }
   });
-
   totalDamageBuff = 0;
   crystals.forEach((crystal: any) => {
-    if (!crystal.destroyed && crystal.currentBuff) {
-      totalDamageBuff += crystal.currentBuff;
+    if (crystal.currentBuff) {
+      if (!crystal.destroyed) {
+        totalDamageBuff += crystal.currentBuff;
+      } else {
+        totalDamageBuff += crystal.currentBuff * 0.25;
+      }
     }
   });
-
-  // Aplicar o multiplicador progressivo ao limite total
   let currentMaxBuffMultiplier = boss.persistentData.getFloat(`phase_${phaseIndex}_currentMaxBuffMultiplier`) || 1.0;
   let maxTotalBuff = config.maxDamageBuff * config.crystalCount * currentMaxBuffMultiplier;
   totalDamageBuff = Math.min(totalDamageBuff, maxTotalBuff);
-
   boss.persistentData.putInt(`phase_${phaseIndex}_crystalDamage`, totalDamageBuff);
   boss.persistentData.putString(`phase_${phaseIndex}_crystals`, JSON.stringify(crystals));
-
   let baseDamageKey = `phase_${phaseIndex}_baseDamage`;
   let baseSpeedKey = `phase_${phaseIndex}_baseSpeed`;
   let baseArmorKey = `phase_${phaseIndex}_baseArmor`;
-
   if (!boss.persistentData.contains(baseDamageKey)) {
     boss.persistentData.putFloat(baseDamageKey, boss.getAttributeBaseValue("minecraft:generic.attack_damage"));
     boss.persistentData.putFloat(baseSpeedKey, boss.getAttributeBaseValue("minecraft:generic.movement_speed"));
     boss.persistentData.putFloat(baseArmorKey, boss.getAttributeBaseValue("minecraft:generic.armor"));
   }
-
   let baseDamage = boss.persistentData.getFloat(baseDamageKey);
   let baseSpeed = boss.persistentData.getFloat(baseSpeedKey);
   let baseArmor = boss.persistentData.getFloat(baseArmorKey);
-
   boss.setAttributeBaseValue("minecraft:generic.attack_damage", baseDamage + totalDamageBuff);
   let speedMultiplier = 1 + Math.min(totalDamageBuff * 0.005, 0.5);
   boss.setAttributeBaseValue("minecraft:generic.movement_speed", baseSpeed * speedMultiplier);
   let armorBonus = totalDamageBuff * 0.1;
   boss.setAttributeBaseValue("minecraft:generic.armor", baseArmor + armorBonus);
-
   if (allDestroyed) {
     handleAllCrystalsDestroyed(boss, level, phaseIndex, totalDamageBuff);
   }
-
   if (activeCrystals > 0 && currentTick % 100 === 0) {
     let speedBonus = ((speedMultiplier - 1) * 100).toFixed(0);
     let armorBonus = (totalDamageBuff * 0.1).toFixed(1);
-
     level.runCommandSilent(
       `execute positioned ${boss.x} ${boss.y} ${boss.z} run title @a[distance=..64] actionbar {"text":"⚡ Cristais: ${activeCrystals} | Dano: +${totalDamageBuff.toFixed(
         1
@@ -698,9 +733,18 @@ function handleRitualTimeout(boss: $LivingEntity, level: $ServerLevel, phaseInde
     }
   }
   boss.teleportTo(boss.x, groundY, boss.z);
+
+  // Remover cristais e barreiras
   crystals.forEach((crystal: any) => {
     if (!crystal.destroyed) {
       level.runCommandSilent(`execute positioned ${crystal.x} ${crystal.y} ${crystal.z} run kill @e[type=minecraft:end_crystal,distance=..2]`);
+    }
+    // Remover barreiras (5x5x4)
+    if (crystal.blockX !== undefined && crystal.blockZ !== undefined && crystal.barrierY !== undefined) {
+      let bx = crystal.blockX;
+      let bz = crystal.blockZ;
+      let by = crystal.barrierY;
+      level.runCommandSilent(`fill ${bx - 2} ${by} ${bz - 2} ${bx + 2} ${by + 3} ${bz + 2} minecraft:air replace minecraft:iron_bars`);
     }
   });
   level.runCommandSilent(`particle minecraft:explosion_emitter ${boss.x} ${boss.y + 1} ${boss.z} 3 2 3 0 15 force @a[distance=..64]`);
@@ -717,6 +761,20 @@ function handleRitualTimeout(boss: $LivingEntity, level: $ServerLevel, phaseInde
 function handleAllCrystalsDestroyed(boss: $LivingEntity, level: $ServerLevel, phaseIndex: number, damageAccumulated: number): void {
   if (boss.persistentData.getBoolean(`phase_${phaseIndex}_crystalsCleared`)) return;
   boss.persistentData.putBoolean(`phase_${phaseIndex}_crystalsCleared`, true);
+
+  let crystalDataRaw = boss.persistentData.getString(`phase_${phaseIndex}_crystals`);
+  if (crystalDataRaw) {
+    let crystals = JSON.parse(crystalDataRaw);
+    crystals.forEach((crystal: any) => {
+      if (crystal.blockX !== undefined && crystal.blockZ !== undefined && crystal.barrierY !== undefined) {
+        let bx = crystal.blockX;
+        let bz = crystal.blockZ;
+        let by = crystal.barrierY;
+        level.runCommandSilent(`fill ${bx - 2} ${by} ${bz - 2} ${bx + 2} ${by + 3} ${bz + 2} minecraft:air replace minecraft:iron_bars`);
+      }
+    });
+  }
+
   let bossName = boss.customName?.getString() || "Boss";
   boss.persistentData.putBoolean(`phase_${phaseIndex}_inRitual`, false);
   level.runCommandSilent(`execute as ${boss.uuid} run data merge entity @s {NoAI:0b,Invulnerable:0b}`);
@@ -749,10 +807,9 @@ function handleAllCrystalsDestroyed(boss: $LivingEntity, level: $ServerLevel, ph
   boss.setAttributeBaseValue("minecraft:generic.movement_speed", originalBaseSpeed);
   boss.setAttributeBaseValue("minecraft:generic.armor", originalBaseArmor);
   if (damageAccumulated > 0) {
-    let damageToApply = damageAccumulated * 5;
-    boss.attack(damageToApply);
+    boss.attack(damageAccumulated);
     level.runCommandSilent(`tellraw @a[distance=..64] "§a§l✓ Todos os cristais foram destruídos!"`);
-    level.runCommandSilent(`tellraw @a[distance=..64] "§c§l⚔ ${bossName} recebeu ${damageToApply.toFixed(0)} de dano pelos cristais ativos!"`);
+    level.runCommandSilent(`tellraw @a[distance=..64] "§c§l⚔ ${bossName} recebeu ${damageAccumulated.toFixed(1)} de dano pelos cristais ativos!"`);
   } else {
     level.runCommandSilent(`tellraw @a[distance=..64] "§a§l✓ Cristais destruídos rapidamente! Boss não recebeu buff!"`);
   }
