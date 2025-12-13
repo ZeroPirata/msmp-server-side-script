@@ -1,5 +1,21 @@
 console.log("[MSMP] Carregando core principais...");
 
+// Server
+let VIDEO_TAG = "msmp_player_watched_video";
+let VIDEO_URL = "https://www.youtube.com/watch?v=9E15RZINDFI";
+
+// Commands
+let CONFIG_KEY = "msmp_configs";
+let DEFAULT_CONFIG = {
+  DELAY_TICKS: 1 * 60 * 20,
+  SPAWN_SAFE_RADIUS: 0,
+  MIN_DISTANCE: 0,
+  MAX_DISTANCE: 10,
+  MIN_DAY: 1,
+  CHANCE_PERCENT: 1.0
+};
+
+// boss management
 let bossChunkPositions: { x: number; z: number }[] = [];
 let bossActivationCheckTimer = 0;
 let pendingBossSpawn: {
@@ -10,20 +26,20 @@ let pendingBossSpawn: {
   activationRange: number;
 } | null = null;
 
-let VIDEO_TAG = "msmp_player_watched_video";
-let VIDEO_URL = "https://www.youtube.com/watch?v=9E15RZINDFI";
-let TAG_LAST_DAY = "msmp_last_boss_spawn_day";
-
 let activeBossBar: $CustomBossEvent | null = null;
 let damageAccumulator = new Map<string, Map<string, number>>();
-// Commands
+let TAG_LAST_DAY = "msmp_last_boss_spawn_day";
 
-let CONFIG_KEY = "msmp_configs";
-let DEFAULT_CONFIG = {
-  DELAY_TICKS: 1 * 60 * 20,
-  SPAWN_SAFE_RADIUS: 0,
-  MIN_DISTANCE: 0,
-  MAX_DISTANCE: 10,
-  MIN_DAY: 1,
-  CHANCE_PERCENT: 1.0
-};
+// Minecraft Classes
+let Entity = Java.loadClass("net.minecraft.world.entity.Entity");
+let EntityType = Java.loadClass("net.minecraft.world.entity.EntityType");
+let AABB = Java.loadClass("net.minecraft.world.phys.AABB");
+let Vec3 = Java.loadClass("net.minecraft.world.phys.Vec3");
+let BlockPos = Java.loadClass("net.minecraft.core.BlockPos");
+let Block = Java.loadClass("net.minecraft.world.level.block.Block");
+
+// Ritual Constants
+let RITUAL_HEIGHT = 4; // 4 blocos acima
+let HEAL_PER_SECOND = 5; // 0.25 HP/tick × 20 = 5 HP/seg
+let BEAM_UPDATE_TICKS = 5; // Faixes a cada 0.25 seg
+let RITUAL_PARTICLE_TICKS = 10; // Partículas a cada 0.5 seg
