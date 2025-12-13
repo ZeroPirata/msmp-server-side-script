@@ -1,6 +1,7 @@
 let EquipmentSlot = Java.loadClass("net.minecraft.world.entity.EquipmentSlot");
 
 function applyEquipmentToBoss(boss: $LivingEntity, equipment: IEquipment): void {
+  if (!equipment) return;
   function processEnchantments(config: any): { [key: string]: number } {
     let finalEnchantments: { [key: string]: number } = {};
     if (config.guaranteed) {

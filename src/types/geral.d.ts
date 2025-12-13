@@ -34,3 +34,10 @@ interface IEnemy {
   drops?: IDrops[];
   equipment?: IEquipment;
 }
+
+interface ICrystalData {
+  pos: $BlockPos;
+  activeTime: number; // Ticks que ficou ativo
+  destroyed: boolean;
+  respawnAt?: number; // Tick de respawn
+}

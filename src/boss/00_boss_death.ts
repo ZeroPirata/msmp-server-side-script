@@ -26,7 +26,7 @@ EntityEvents.death((event) => {
 
     tracker.forEach((damage, playerUUID) => {
       if (!fullTracker[playerUUID]) {
-        let player = server.getPlayerByUUID(playerUUID);
+        let player = server.getPlayerList().getPlayer(playerUUID);
         fullTracker[playerUUID] = {
           playerName: player?.username || "Desconhecido",
           damage: 0
@@ -114,7 +114,7 @@ EntityEvents.death((event) => {
 
         let minutes = msmpConfig.DELAY_TICKS / 1200;
         activePlayers.forEach((uuid) => {
-          let player = server.getPlayerByUUID(uuid);
+          let player = server.getPlayerList().getPlayer(playerUUID);
           if (player) {
             player.tell(`§eO baú irá desaparecer em ${minutes} minutos!`);
           }

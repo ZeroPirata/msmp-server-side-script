@@ -63,7 +63,7 @@ let MINION_PRESETS: { [key: string]: IMinionConfig } = {
       }
     },
     attributes: {
-      damage: 4
+      damage: 4,
     }
   },
 

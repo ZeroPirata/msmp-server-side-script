@@ -163,7 +163,6 @@ function spawnBossAtPosition(server: $ServerLevel, bossConfig: IMiniBoss, x: num
     }
 
     basicStatusEnemys(living, bossConfig);
-    equipEntity(living, bossConfig.equipment);
 
     living.health = bossConfig.health;
     living.maxHealth = bossConfig.health;
@@ -180,6 +179,7 @@ function spawnBossAtPosition(server: $ServerLevel, bossConfig: IMiniBoss, x: num
     living.persistentData.putInt("kubejs_bossChunkZ", chunkZ);
     applyBossPotions(living, bossConfig.specialAbilities);
     boss.spawn();
+    applyEquipmentToBoss(living, bossConfig.equipment);
     server.setChunkForced(chunkX, chunkZ, true);
 
     server.runCommandSilent(`particle minecraft:explosion_emitter ${x} ${y + 1} ${z} 1 1 1 0.5 10 force`);

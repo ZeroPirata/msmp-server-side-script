@@ -9,6 +9,7 @@ type PhaseAbilityType =
   | "weather_change"
   | "potion_effects"
   | "enrage"
+  | "projectile_rain"
   | "crystal_phase";
 
 interface ICrystalConfig {
@@ -119,11 +120,20 @@ interface IEnrageAbility extends IPhaseAbility {
   };
 }
 
-interface ICrystalData {
-  pos: $BlockPos;
-  activeTime: number; // Ticks que ficou ativo
-  destroyed: boolean;
-  respawnAt?: number; // Tick de respawn
+interface IProjectileRainAbility extends IPhaseAbility {
+  type: "projectile_rain";
+  config: {
+    projectileType: string; // "minecraft:arrow", "projectvibrantjourneys:icicle", etc
+    intervalTicks: number; // Frequência da chuva
+    radius: number; // Raio da área de chuva
+    projectileCount: number; // Quantos projéteis por chuva
+    fallHeight: number; // Altura de onde os projéteis caem (padrão: 20)
+    targetMode: "random" | "players" | "boss"; // Onde a chuva cai
+    damage?: number; // Dano customizado (opcional)
+    spreadPattern?: "random" | "circle" | "grid"; // Padrão de distribuição
+    warningTime?: number; // Ticks de aviso antes de cair (partículas)
+    warningParticle?: string; // Partícula de aviso
+  };
 }
 
 interface IBossPhase {
