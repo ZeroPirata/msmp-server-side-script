@@ -578,11 +578,37 @@ function updateCrystalSystem(boss: $LivingEntity, config: ICrystalConfig, level:
         }
       }
 
-      // Calcular buff a cada tick baseado em quanto tempo o cristal está vivo
+      // Calcular progresso baseado no tempo TOTAL do ritual, não do cristal individual
+      let ritualStartTick = boss.persistentData.getInt(`phase_${phaseIndex}_ritualStartTick`);
+      let timeInRitual = currentTick - ritualStartTick;
+      let maxTime = config.maxRitualTime || 3600;
+      let timeProgress = timeInRitual / maxTime;
+
+      let accelerationMultiplier = 1.0;
+      let maxBuffMultiplier = 1.0;
+
+      if (timeProgress < 0.25) {
+        accelerationMultiplier = 0.5;
+        maxBuffMultiplier = 1.0;
+      } else if (timeProgress < 0.5) {
+        accelerationMultiplier = 1.0;
+        maxBuffMultiplier = 1.25;
+      } else if (timeProgress < 0.75) {
+        accelerationMultiplier = 1.5;
+        maxBuffMultiplier = 1.5;
+      } else {
+        accelerationMultiplier = 2.0;
+        maxBuffMultiplier = 2.0;
+      }
+
       let secondsAlive = Math.floor(ticksAlive / 20);
-      let buffThisCrystal = secondsAlive * config.damageBuffPerSecond;
-      buffThisCrystal = Math.min(buffThisCrystal, config.maxDamageBuff);
+      let buffThisCrystal = secondsAlive * config.damageBuffPerSecond * accelerationMultiplier;
+      let maxAllowed = config.maxDamageBuff * maxBuffMultiplier;
+      buffThisCrystal = Math.min(buffThisCrystal, maxAllowed);
       crystal.currentBuff = buffThisCrystal;
+
+      // Salvar o multiplicador atual para usar no cálculo total
+      boss.persistentData.putFloat(`phase_${phaseIndex}_currentMaxBuffMultiplier`, maxBuffMultiplier);
 
       if (ticksAlive % 40 === 0 && config.particleEffect) {
         level.runCommandSilent(`particle ${config.particleEffect} ${crystal.x} ${crystal.y + 1} ${crystal.z} 0.3 0.5 0.3 0.05 5 force @a`);
@@ -609,7 +635,9 @@ function updateCrystalSystem(boss: $LivingEntity, config: ICrystalConfig, level:
     }
   });
 
-  let maxTotalBuff = config.maxDamageBuff * config.crystalCount;
+  // Aplicar o multiplicador progressivo ao limite total
+  let currentMaxBuffMultiplier = boss.persistentData.getFloat(`phase_${phaseIndex}_currentMaxBuffMultiplier`) || 1.0;
+  let maxTotalBuff = config.maxDamageBuff * config.crystalCount * currentMaxBuffMultiplier;
   totalDamageBuff = Math.min(totalDamageBuff, maxTotalBuff);
 
   boss.persistentData.putInt(`phase_${phaseIndex}_crystalDamage`, totalDamageBuff);
