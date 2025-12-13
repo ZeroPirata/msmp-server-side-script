@@ -444,7 +444,7 @@ function spawnCrystals(boss: $LivingEntity, config: ICrystalConfig, level: $Serv
       spawnTick: level.server.getTickCount(),
       destroyed: false,
       respawnAt: -1,
-      currentBuff: 0 // ✅ Inicializa o buff do cristal
+      currentBuff: 0
     });
   }
   let centerX = bossPos.x + 0.5;
@@ -578,11 +578,11 @@ function updateCrystalSystem(boss: $LivingEntity, config: ICrystalConfig, level:
         }
       }
 
-      if (ticksAlive % 20 === 0) {
-        let buffThisCrystal = Math.floor((ticksAlive + 20) / 20) * config.damageBuffPerSecond;
-        buffThisCrystal = Math.min(buffThisCrystal, config.maxDamageBuff);
-        crystal.currentBuff = buffThisCrystal;
-      }
+      // Calcular buff a cada tick baseado em quanto tempo o cristal está vivo
+      let secondsAlive = Math.floor(ticksAlive / 20);
+      let buffThisCrystal = secondsAlive * config.damageBuffPerSecond;
+      buffThisCrystal = Math.min(buffThisCrystal, config.maxDamageBuff);
+      crystal.currentBuff = buffThisCrystal;
 
       if (ticksAlive % 40 === 0 && config.particleEffect) {
         level.runCommandSilent(`particle ${config.particleEffect} ${crystal.x} ${crystal.y + 1} ${crystal.z} 0.3 0.5 0.3 0.05 5 force @a`);
@@ -609,27 +609,44 @@ function updateCrystalSystem(boss: $LivingEntity, config: ICrystalConfig, level:
     }
   });
 
-  totalDamageBuff = Math.min(totalDamageBuff, config.maxDamageBuff * config.crystalCount);
+  let maxTotalBuff = config.maxDamageBuff * config.crystalCount;
+  totalDamageBuff = Math.min(totalDamageBuff, maxTotalBuff);
+
   boss.persistentData.putInt(`phase_${phaseIndex}_crystalDamage`, totalDamageBuff);
   boss.persistentData.putString(`phase_${phaseIndex}_crystals`, JSON.stringify(crystals));
 
   let baseDamageKey = `phase_${phaseIndex}_baseDamage`;
+  let baseSpeedKey = `phase_${phaseIndex}_baseSpeed`;
+  let baseArmorKey = `phase_${phaseIndex}_baseArmor`;
+
   if (!boss.persistentData.contains(baseDamageKey)) {
     boss.persistentData.putFloat(baseDamageKey, boss.getAttributeBaseValue("minecraft:generic.attack_damage"));
+    boss.persistentData.putFloat(baseSpeedKey, boss.getAttributeBaseValue("minecraft:generic.movement_speed"));
+    boss.persistentData.putFloat(baseArmorKey, boss.getAttributeBaseValue("minecraft:generic.armor"));
   }
 
   let baseDamage = boss.persistentData.getFloat(baseDamageKey);
+  let baseSpeed = boss.persistentData.getFloat(baseSpeedKey);
+  let baseArmor = boss.persistentData.getFloat(baseArmorKey);
+
   boss.setAttributeBaseValue("minecraft:generic.attack_damage", baseDamage + totalDamageBuff);
+  let speedMultiplier = 1 + Math.min(totalDamageBuff * 0.005, 0.5);
+  boss.setAttributeBaseValue("minecraft:generic.movement_speed", baseSpeed * speedMultiplier);
+  let armorBonus = totalDamageBuff * 0.1;
+  boss.setAttributeBaseValue("minecraft:generic.armor", baseArmor + armorBonus);
 
   if (allDestroyed) {
     handleAllCrystalsDestroyed(boss, level, phaseIndex, totalDamageBuff);
   }
 
   if (activeCrystals > 0 && currentTick % 100 === 0) {
+    let speedBonus = ((speedMultiplier - 1) * 100).toFixed(0);
+    let armorBonus = (totalDamageBuff * 0.1).toFixed(1);
+
     level.runCommandSilent(
-      `execute positioned ${boss.x} ${boss.y} ${boss.z} run title @a[distance=..64] actionbar {"text":"⚡ Cristais Ativos: ${activeCrystals} | Dano Extra: +${totalDamageBuff.toFixed(
+      `execute positioned ${boss.x} ${boss.y} ${boss.z} run title @a[distance=..64] actionbar {"text":"⚡ Cristais: ${activeCrystals} | Dano: +${totalDamageBuff.toFixed(
         1
-      )}","color":"red","bold":true}`
+      )} | Speed: +${speedBonus}% | Armor: +${armorBonus}","color":"red","bold":true}`
     );
   }
 }
@@ -691,9 +708,18 @@ function handleAllCrystalsDestroyed(boss: $LivingEntity, level: $ServerLevel, ph
   boss.teleportTo(boss.x, groundY, boss.z);
   level.runCommandSilent(`particle minecraft:explosion ${boss.x} ${groundY} ${boss.z} 2 0.5 2 0 20 force @a[distance=..64]`);
   level.runCommandSilent(`playsound minecraft:entity.generic.explode hostile @a[distance=..64] ${boss.x} ${groundY} ${boss.z} 1 0.8`);
+
   let baseDamageKey = `phase_${phaseIndex}_baseDamage`;
+  let baseSpeedKey = `phase_${phaseIndex}_baseSpeed`;
+  let baseArmorKey = `phase_${phaseIndex}_baseArmor`;
+
   let originalBaseDamage = boss.persistentData.getFloat(baseDamageKey) || 1.0;
+  let originalBaseSpeed = boss.persistentData.getFloat(baseSpeedKey) || 0.25;
+  let originalBaseArmor = boss.persistentData.getFloat(baseArmorKey) || 0.0;
+
   boss.setAttributeBaseValue("minecraft:generic.attack_damage", originalBaseDamage);
+  boss.setAttributeBaseValue("minecraft:generic.movement_speed", originalBaseSpeed);
+  boss.setAttributeBaseValue("minecraft:generic.armor", originalBaseArmor);
   if (damageAccumulated > 0) {
     let damageToApply = damageAccumulated * 5;
     boss.attack(damageToApply);
