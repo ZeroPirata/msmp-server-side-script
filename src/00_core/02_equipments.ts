@@ -1,4 +1,3 @@
-let EquipmentSlot = Java.loadClass("net.minecraft.world.entity.EquipmentSlot");
 
 function applyEquipmentToBoss(boss: $LivingEntity, equipment: IEquipment): void {
   if (!equipment) return;

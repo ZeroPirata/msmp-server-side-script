@@ -37,6 +37,11 @@ let AABB = Java.loadClass("net.minecraft.world.phys.AABB");
 let Vec3 = Java.loadClass("net.minecraft.world.phys.Vec3");
 let BlockPos = Java.loadClass("net.minecraft.core.BlockPos");
 let Block = Java.loadClass("net.minecraft.world.level.block.Block");
+let CustomBossEvent = Java.loadClass("net.minecraft.server.bossevents.CustomBossEvent");
+let BossBarColor = Java.loadClass("net.minecraft.world.BossEvent$BossBarColor");
+let BossBarOverlay = Java.loadClass("net.minecraft.world.BossEvent$BossBarOverlay");
+let ResourceLocation = Java.loadClass("net.minecraft.resources.ResourceLocation");
+let EquipmentSlot = Java.loadClass("net.minecraft.world.entity.EquipmentSlot");
 
 // Ritual Constants
 let RITUAL_HEIGHT = 4; // 4 blocos acima

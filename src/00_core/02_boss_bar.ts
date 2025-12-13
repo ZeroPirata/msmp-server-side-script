@@ -8,10 +8,7 @@ import { $ChunkPos } from "net.minecraft.world.level.ChunkPos";
 import { $CustomBossEvent } from "net.minecraft.server.bossevents.CustomBossEvent";
 import { $BossEvent$BossBarOverlay } from "net.minecraft.world.BossEvent$BossBarOverlay";
 
-let CustomBossEvent = Java.loadClass("net.minecraft.server.bossevents.CustomBossEvent");
-let BossBarColor = Java.loadClass("net.minecraft.world.BossEvent$BossBarColor");
-let BossBarOverlay = Java.loadClass("net.minecraft.world.BossEvent$BossBarOverlay");
-let ResourceLocation = Java.loadClass("net.minecraft.resources.ResourceLocation");
+
 
 function createBossBar(server: $MinecraftServer, bossName: string, color, overlay: string) {
   let bossBarId;
