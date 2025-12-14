@@ -14,7 +14,18 @@ let SIMPLE_BOSS: IMiniBoss = {
       name: "É so um zumbi bufado ao extremo...",
       onEnterMessage: "§c§l <SOM DE ZUMBI RAIVOSO>!",
       bossBarColor: "RED",
-      abilities: []
+      abilities: [
+        {
+          type: "shoot_projectiles",
+          config: {
+            projectileType: "irons_spellbooks:blood_slash",
+            intervalTicks: 60,
+            count: 1,
+            speed: 1,
+            damage: 12
+          }
+        }
+      ]
     }
   ]
 };

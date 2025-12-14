@@ -101,6 +101,16 @@ function executeShootProjectiles(boss: $LivingEntity, ability: IShootProjectiles
     }
   });
   if (!nearestPlayer) return;
+
+  let isBloodMod = ability.config.projectileType.includes("irons_spellbooks:");
+  console.log(`[MSMP] Atirando projétil do tipo ${ability.config.projectileType} em ${nearestPlayer.getName().getString()}`);
+  if (isBloodMod) {
+    level.runCommandSilent(`execute as ${boss.stringUuid} at @s run tp @s ~ ~ ~ facing entity ${nearestPlayer.stringUuid} eyes`);
+    level.runCommandSilent(`cast ${boss.stringUuid} blood_slash`);
+    boss.persistentData.putInt(key, currentTick);
+    return;
+  }
+
   let count = ability.config.count || 1;
   let spread = ability.config.spread || 0;
   for (let i = 0; i < count; i++) {

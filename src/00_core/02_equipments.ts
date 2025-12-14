@@ -1,4 +1,3 @@
-
 function applyEquipmentToBoss(boss: $LivingEntity, equipment: IEquipment): void {
   if (!equipment) return;
   function processEnchantments(config: any): { [key: string]: number } {
@@ -85,37 +84,6 @@ function applyEquipmentToBoss(boss: $LivingEntity, equipment: IEquipment): void 
 
   if (equipment.feet) {
     boss.feetArmorItem = createEquipmentItem(equipment.feet);
-  }
-
-  if (equipment.dropChance) {
-    try {
-      if (equipment.dropChance.mainHand !== undefined) {
-        boss.setDropChance(EquipmentSlot.MAINHAND, equipment.dropChance.mainHand);
-        console.log(`[EQUIPMENT] Drop chance mão principal: ${equipment.dropChance.mainHand}`);
-      }
-      if (equipment.dropChance.offHand !== undefined) {
-        boss.setDropChance(EquipmentSlot.OFFHAND, equipment.dropChance.offHand);
-        console.log(`[EQUIPMENT] Drop chance mão secundária: ${equipment.dropChance.offHand}`);
-      }
-      if (equipment.dropChance.head !== undefined) {
-        boss.setDropChance(EquipmentSlot.HEAD, equipment.dropChance.head);
-        console.log(`[EQUIPMENT] Drop chance capacete: ${equipment.dropChance.head}`);
-      }
-      if (equipment.dropChance.chest !== undefined) {
-        boss.setDropChance(EquipmentSlot.CHEST, equipment.dropChance.chest);
-        console.log(`[EQUIPMENT] Drop chance peitoral: ${equipment.dropChance.chest}`);
-      }
-      if (equipment.dropChance.legs !== undefined) {
-        boss.setDropChance(EquipmentSlot.LEGS, equipment.dropChance.legs);
-        console.log(`[EQUIPMENT] Drop chance calças: ${equipment.dropChance.legs}`);
-      }
-      if (equipment.dropChance.feet !== undefined) {
-        boss.setDropChance(EquipmentSlot.FEET, equipment.dropChance.feet);
-        console.log(`[EQUIPMENT] Drop chance botas: ${equipment.dropChance.feet}`);
-      }
-    } catch (error) {
-      console.error(`[EQUIPMENT] Erro ao configurar drop chances: ${error}`);
-    }
   }
 }
 

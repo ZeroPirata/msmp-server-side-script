@@ -14,7 +14,7 @@ PlayerEvents.tick((e) => {
   let position = e.player.blockPosition();
   let bossPosition = boss.blockPosition();
   let distance = position.distSqr(bossPosition);
-  const VISIBILITY_RANGE = 16 * 16;
+  const VISIBILITY_RANGE = 32 * 32; // 1024 blocks
   let hasBossBar = bossBar.getPlayers().contains(e.player);
   if (distance > VISIBILITY_RANGE) {
     if (hasBossBar) {
