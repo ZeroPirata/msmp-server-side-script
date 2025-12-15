@@ -5,6 +5,24 @@ interface IMiniBoss extends IEnemy {
   immuneTo?: string[]; // Imune a certos danos
   lootMultiplier?: number; // Boss premium dropa 2x mais
   scaling?: IPlayerScaling; // Escala com o número de jogadores
+  classe:
+    | "mage_summoner"
+    | "battle_mage"
+    | "necromancer"
+    | "blood_mage"
+    | "crystal_guardian"
+    | "tank_brawler"
+    | "berserker"
+    | "fallen_hero"
+    | "armored_juggernaut"
+    | "assassin"
+    | "archer_sniper"
+    | "archer_assassin"
+    | "marksman"
+    | "elemental_fury"
+    | "void_walker"
+    | "storm_caller"
+    | "plague_bearer";
 }
 
 interface IPlayerScaling {

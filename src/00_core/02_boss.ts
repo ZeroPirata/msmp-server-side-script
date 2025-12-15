@@ -178,6 +178,8 @@ function spawnBossAtPosition(server: $ServerLevel, bossConfig: IMiniBoss, x: num
     living.persistentData.putDouble("kubejs_activationRange", 24.0);
     living.persistentData.putInt("kubejs_bossChunkX", chunkX);
     living.persistentData.putInt("kubejs_bossChunkZ", chunkZ);
+    living.persistentData.putBoolean("kubejs_personalized_boss", true);
+    living.persistentData.putString("boss_type", bossConfig.classe);
     applyBossPotions(living, bossConfig.specialAbilities);
     boss.spawn();
     applyEquipmentToBoss(living, bossConfig.equipment);

@@ -42,6 +42,13 @@ let BossBarColor = Java.loadClass("net.minecraft.world.BossEvent$BossBarColor");
 let BossBarOverlay = Java.loadClass("net.minecraft.world.BossEvent$BossBarOverlay");
 let ResourceLocation = Java.loadClass("net.minecraft.resources.ResourceLocation");
 let EquipmentSlot = Java.loadClass("net.minecraft.world.entity.EquipmentSlot");
+let NearestAttackableTargetGoal = Java.loadClass("net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal");
+let WaterAvoidingRandomStrollGoal = Java.loadClass("net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal");
+let LookAtPlayerGoal = Java.loadClass("net.minecraft.world.entity.ai.goal.LookAtPlayerGoal");
+let AvoidEntityGoal = Java.loadClass("net.minecraft.world.entity.ai.goal.AvoidEntityGoal");
+let MeleeAttackGoal = Java.loadClass("net.minecraft.world.entity.ai.goal.MeleeAttackGoal");
+let RangedBowAttackGoal = Java.loadClass("net.minecraft.world.entity.ai.goal.RangedBowAttackGoal");
+let Player = Java.loadClass("net.minecraft.world.entity.player.Player");
 
 // Ritual Constants
 let RITUAL_HEIGHT = 4; // 4 blocos acima

@@ -102,15 +102,6 @@ function executeShootProjectiles(boss: $LivingEntity, ability: IShootProjectiles
   });
   if (!nearestPlayer) return;
 
-  let isBloodMod = ability.config.projectileType.includes("irons_spellbooks:");
-  console.log(`[MSMP] Atirando projétil do tipo ${ability.config.projectileType} em ${nearestPlayer.getName().getString()}`);
-  if (isBloodMod) {
-    level.runCommandSilent(`execute as ${boss.stringUuid} at @s run tp @s ~ ~ ~ facing entity ${nearestPlayer.stringUuid} eyes`);
-    level.runCommandSilent(`cast ${boss.stringUuid} blood_slash`);
-    boss.persistentData.putInt(key, currentTick);
-    return;
-  }
-
   let count = ability.config.count || 1;
   let spread = ability.config.spread || 0;
   for (let i = 0; i < count; i++) {
@@ -252,4 +243,81 @@ function executeEnrage(boss: $LivingEntity, ability: IEnrageAbility, level: $Ser
   level.runCommandSilent(`playsound minecraft:entity.ravager.roar hostile @a ${boss.x} ${boss.y} ${boss.z} 2 0.7`);
   let bossName = boss.customName?.getString() || "Boss";
   level.runCommandSilent(`tellraw @a[distance=..64] "§4§l☠ ${bossName} Ficou PISTOLA!"`);
+}
+
+function executeCastSpell(boss: $LivingEntity, ability: ICastSpellAbility, level: $ServerLevel, phaseIndex?: number, abilityIndex?: number, currentTick?: number): void {
+  if (phaseIndex === undefined || abilityIndex === undefined || currentTick === undefined) return;
+  let key = `phase_${phaseIndex}_ability_${abilityIndex}_lastTick`;
+  let lastTick = boss.persistentData.getInt(key) || 0;
+  let interval = ability.config.intervalTicks;
+  if (currentTick - lastTick < interval) return;
+  let config = ability.config;
+  let range = config.range || 30;
+  let castCount = config.castCount || 1;
+  let targets: $Player[] = [];
+
+  switch (config.targetMode) {
+    case "nearest_player":
+      let nearestPlayer = null;
+      let minDistance = range * range;
+      level.players.forEach((player) => {
+        if (player.isSpectator() || !player.isAlive()) return;
+        let distSqr = boss.distanceToSqr(player);
+        if (distSqr < minDistance) {
+          if (config.requiresLineOfSight && !boss.hasLineOfSight(player)) return;
+          minDistance = distSqr;
+          nearestPlayer = player;
+        }
+      });
+
+      if (nearestPlayer) targets.push(nearestPlayer);
+      break;
+
+    case "all_players":
+      level.players.forEach((player) => {
+        if (player.isSpectator() || !player.isAlive()) return;
+        let dist = Math.sqrt(boss.distanceToSqr(player));
+        if (dist <= range) {
+          if (!config.requiresLineOfSight || boss.hasLineOfSight(player)) {
+            targets.push(player);
+          }
+        }
+      });
+      break;
+
+    case "random_nearby":
+      let nearbyPlayers: $Player[] = [];
+      level.players.forEach((player) => {
+        if (player.isSpectator() || !player.isAlive()) return;
+        let dist = Math.sqrt(boss.distanceToSqr(player));
+        if (dist <= range) {
+          if (!config.requiresLineOfSight || boss.hasLineOfSight(player)) {
+            nearbyPlayers.push(player);
+          }
+        }
+      });
+      if (nearbyPlayers.length > 0) {
+        let randomIndex = Math.floor(Math.random() * nearbyPlayers.length);
+        targets.push(nearbyPlayers[randomIndex]);
+      }
+      break;
+
+    case "self":
+      targets = [];
+      break;
+  }
+
+  for (let i = 0; i < castCount; i++) {
+    if (config.targetMode === "self") {
+      level.runCommandSilent(`execute as ${boss.stringUUID} at @s run cast ${config.spellId}`);
+    } else if (targets.length > 0) {
+      targets.forEach((target) => {
+        level.runCommandSilent(`execute as ${boss.stringUUID} at @s facing entity ${target.stringUUID} eyes run cast ${config.spellId}`);
+      });
+    } else {
+      level.runCommandSilent(`execute as ${boss.stringUUID} at @s run cast ${config.spellId}`);
+    }
+  }
+  boss.persistentData.putInt(key, currentTick);
+  level.runCommandSilent(`playsound ${ability.config.soundEffectPath} hostile @a ${boss.x} ${boss.y} ${boss.z} 1 1`);
 }

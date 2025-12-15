@@ -5,8 +5,6 @@ import { $Level } from "net.minecraft.world.level.Level";
 import { $ChunkPos } from "net.minecraft.world.level.ChunkPos";
 import { $Registry } from "net.minecraft.core.Registry";
 
-
-
 function bossPhases(boss: $LivingEntity, config: IMiniBoss, level: $MinecraftServer): void {
   let currentTick = level.getTickCount();
   let currentHealth = boss.health;
@@ -41,14 +39,11 @@ function bossPhases(boss: $LivingEntity, config: IMiniBoss, level: $MinecraftSer
       activePhaseIndex = currentPhaseKey;
     }
   }
-  let finalPhase = config.phases[activePhaseIndex];
   let nameBoss = "";
 
-  if (finalPhase.name) {
-    nameBoss = finalPhase.name;
-  }
-
-  updateBossBarName(`${config.name} ${nameBoss} - §7[${percentDisplay}%]`);
+  updateBossBarName(`${config.name} - §7[${percentDisplay}%]`);
+  if (!config.phases) return;
+  let finalPhase = config.phases[activePhaseIndex];
   updateBossBarColor(finalPhase.bossBarColor || "GREEN");
   updateBossBarOverlay(finalPhase.bossBarOverlay || "PROGRESS");
   executePhaseAbilities(boss, finalPhase || null, level);
@@ -135,6 +130,10 @@ function executeAbility(boss: $LivingEntity, ability: IPhaseAbility, level: $Ser
       break;
     case "projectile_rain":
       executeProjectileRain(boss, ability as IProjectileRainAbility, level, phaseIndex, abilityIndex, currentTick);
+      break;
+
+    case "cast_spell":
+      executeCastSpell(boss, ability as ICastSpellAbility, level, phaseIndex, abilityIndex, currentTick);
       break;
   }
 }

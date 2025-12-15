@@ -1,6 +1,6 @@
 LootJS.lootTables((e) => {
   // Tier BAIXO (0-33% contribuição) - pesos normais
-  e.create("kubejs:zargon_chest_low").createPool((p) => {
+  e.create("kubejs:teste_lootr_low").createPool((p) => {
     p.rolls([1, 3]);
     p.addEntry(LootEntry.of("minecraft:rotten_flesh").setCount([10, 20]).withWeight(100));
     p.addEntry(LootEntry.of("minecraft:iron_ingot").setCount([5, 15]).withWeight(80));
@@ -14,7 +14,7 @@ LootJS.lootTables((e) => {
   });
 
   // Tier MÉDIO (34-66% contribuição) - pesos aumentados em itens raros
-  e.create("kubejs:zargon_chest_medium").createPool((p) => {
+  e.create("kubejs:teste_lootr_medium").createPool((p) => {
     p.rolls([2, 4]);
     p.addEntry(LootEntry.of("minecraft:rotten_flesh").setCount([10, 20]).withWeight(80)); // Reduzido
     p.addEntry(LootEntry.of("minecraft:iron_ingot").setCount([5, 15]).withWeight(90)); // Aumentado
@@ -28,7 +28,7 @@ LootJS.lootTables((e) => {
   });
 
   // Tier ALTO (67-100% contribuição) - pesos muito aumentados em itens épicos/lendários
-  e.create("kubejs:zargon_chest_high").createPool((p) => {
+  e.create("kubejs:teste_lootr_high").createPool((p) => {
     p.rolls([2, 5]);
     p.addEntry(LootEntry.of("minecraft:rotten_flesh").setCount([10, 20]).withWeight(50)); // Bem reduzido
     p.addEntry(LootEntry.of("minecraft:iron_ingot").setCount([5, 15]).withWeight(100));

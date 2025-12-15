@@ -81,37 +81,28 @@ EntityEvents.death((event) => {
           let lootTable = `kubejs:${config.lootrName}_${lootTableSuffix}`;
           let offsetX = index * 2;
           let chestPos = new BlockPos(bossPos.x + offsetX, bossPos.y + 1, bossPos.z);
-
-          // Cria o baú
           let setblockCommand = `setblock ${chestPos.x} ${chestPos.y} ${chestPos.z} lootr:lootr_chest{LootTable:"${lootTable}",CustomName:'{"text":"§6${data.playerName}"}'} replace`;
           server.runCommandSilent(setblockCommand);
 
           let chestKey = getChestKey(chestPos);
           let key = getPlayerChestKey(chestKey, data.uuid);
-
           let save: PlayerChestData = {
             lootTable: lootTable,
             damagePercent: damagePercent,
             used: false,
             dropMultiplier: dropMultiplier
           };
-
           server.persistentData.putString(key, JSON.stringify(save));
           saveChestKey(data.uuid, { pos: chestPos, ticks: 0 }, server);
           activePlayers.push(data.uuid);
-
-          // ✅ Partículas reduzidas
           server.runCommandSilent(`particle minecraft:totem_of_undying ${chestPos.x + 0.5} ${chestPos.y + 1} ${chestPos.z + 0.5} 0.2 0.2 0.2 0.05 15 force @a`);
         });
 
         saveActiveChestPlayers(activePlayers, server);
         winnerMessages.push("§a=======================================");
-
-        // ✅ Mensagens só para players próximos
         winnerMessages.forEach((line) => {
           server.runCommandSilent(`execute positioned ${bossPos.x} ${bossPos.y} ${bossPos.z} run tellraw @a[distance=..64] "${line}"`);
         });
-
         let minutes = msmpConfig.DELAY_TICKS / 1200;
         activePlayers.forEach((uuid) => {
           let player = server.getPlayerList().getPlayer(uuid);
@@ -123,13 +114,11 @@ EntityEvents.death((event) => {
     }
   }
 
-  // ✅ Cleanup imediato
   pd.remove("kubejs_damageTracker");
   pd.remove("kubejs_isEnraged");
   pd.remove("kubejs_maxHealth");
   pd.remove("kubejs_bossActivated");
   pd.remove("kubejs_activationRange");
-
   for (let i = 0; i < 10; i++) {
     pd.remove(`phase_${i}_crystals`);
     pd.remove(`phase_${i}_crystalDamage`);
@@ -137,12 +126,10 @@ EntityEvents.death((event) => {
     pd.remove(`phase_${i}_inRitual`);
     pd.remove(`phase_${i}_ritualStartTick`);
     pd.remove(`phase_${i}_baseDamage`);
-
     for (let j = 0; j < 20; j++) {
       pd.remove(`phase_${i}_ability_${j}_lastTick`);
     }
   }
-
   pd.remove("currentPhase");
   pd.remove("lastPhaseChangeTick");
 });

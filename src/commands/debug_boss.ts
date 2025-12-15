@@ -58,12 +58,18 @@ ServerEvents.commandRegistry((event) => {
             let server = ctx.source.server;
             let overworld = server.overworld();
 
+            bossActivationCheckTimer = 0;
+
+            overworld.persistentData.remove("kubejs_customDrops");
             overworld.persistentData.remove("kubejs_damageTracker");
-            overworld.persistentData.remove("kubejs_isEnraged");
-            overworld.persistentData.remove("kubejs_maxHealth");
             overworld.persistentData.remove("kubejs_bossActivated");
             overworld.persistentData.remove("kubejs_activationRange");
-            overworld.persistentData.remove("kubejs_customDrops");
+            overworld.persistentData.remove("kubejs_bossChunkX");
+            overworld.persistentData.remove("kubejs_bossChunkZ");
+            overworld.persistentData.remove("kubejs_personalized_boss");
+            overworld.persistentData.remove("boss_type");
+            overworld.persistentData.remove("kubejs_active_boss_uuid");
+            overworld.persistentData.remove("kubejs_active_boss_config");
 
             let args = ctx.getInput().split(" ");
             let keyArg = args[1];

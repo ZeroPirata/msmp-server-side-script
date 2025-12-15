@@ -10,7 +10,8 @@ type PhaseAbilityType =
   | "potion_effects"
   | "enrage"
   | "projectile_rain"
-  | "crystal_phase";
+  | "crystal_phase"
+  | "cast_spell";
 
 interface ICrystalConfig {
   crystalBlockType: string; // Ex: "minecraft:end_crystal", "minecraft:beacon"
@@ -135,6 +136,19 @@ interface IProjectileRainAbility extends IPhaseAbility {
     spreadPattern?: "random" | "circle" | "grid"; // Padrão de distribuição
     warningTime?: number; // Ticks de aviso antes de cair (partículas)
     warningParticle?: string; // Partícula de aviso
+  };
+}
+
+interface ICastSpellAbility extends IPhaseAbility {
+  type: "cast_spell";
+  config: {
+    spellId: string; // Nome do spell (sem "irons_spellbooks:")
+    intervalTicks: number; // Frequência de cast
+    targetMode: "nearest_player" | "all_players" | "self" | "random_nearby"; // Quem é o alvo
+    range?: number; // Alcance para detectar alvos (padrão: 30)
+    castCount?: number; // Quantas vezes casta por vez (padrão: 1)
+    requiresLineOfSight?: boolean; // Precisa ver o alvo? (padrão: false)
+    soundEffectPath?: string; // Som customizado ao castar (opcional)
   };
 }
 

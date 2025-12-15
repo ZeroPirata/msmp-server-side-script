@@ -87,63 +87,50 @@ function applyEquipmentToBoss(boss: $LivingEntity, equipment: IEquipment): void 
   }
 }
 
-function spawnMinion(level: $ServerLevel, bossPos: $BlockPos, minionConfig: IMinionConfig): $LivingEntity[] {
-  let spawnedMinions: $LivingEntity[] = [];
-  let count = minionConfig.count || 1;
-  for (let i = 0; i < count; i++) {
-    let angle = Math.random() * 2 * Math.PI;
-    let distance = randomBetween(3, 5);
-    let offsetX = Math.floor(distance * Math.cos(angle));
-    let offsetZ = Math.floor(distance * Math.sin(angle));
-    let spawnPos = new BlockPos(bossPos.x + offsetX, bossPos.y, bossPos.z + offsetZ);
-    let groundY = spawnPos.y;
-    while (groundY > level.getMinBuildHeight() && level.getBlockState(new BlockPos(spawnPos.x, groundY, spawnPos.z)).isAir()) {
-      groundY--;
-    }
-    spawnPos = new BlockPos(spawnPos.x, groundY + 1, spawnPos.z);
-    let minion = level.createEntity(minionConfig.id);
-    if (!minion) {
-      console.error(`[MINION] Falha ao criar: ${minionConfig.id}`);
-      continue;
-    }
-    minion.setPos(spawnPos.x + 0.5, spawnPos.y, spawnPos.z + 0.5);
-    let living = minion as $LivingEntity;
-    if (minionConfig.name) {
-      living.setCustomName(minionConfig.name);
-      living.setCustomNameVisible(true);
-    }
-    if (minionConfig.health) {
-      living.maxHealth = minionConfig.health;
-      living.health = minionConfig.health;
-    }
-    if (minionConfig.equipment) {
-      applyEquipmentToBoss(living, minionConfig.equipment);
-    }
-    if (minionConfig.attributes) {
-      if (minionConfig.attributes.damage !== undefined) {
-        living.setAttributeBaseValue("minecraft:generic.attack_damage", minionConfig.attributes.damage);
+function spawnMinion(level: $ServerLevel, pos: $BlockPos, config: IMinionConfig): void {
+  for (let i = 0; i < config.count; i++) {
+    let angle = ((Math.PI * 2) / config.count) * i;
+    let offsetX = Math.cos(angle) * 3;
+    let offsetZ = Math.sin(angle) * 3;
+    let minion = level.createEntity(config.id);
+    if (!minion) continue;
+    minion.setPos(pos.x + offsetX, pos.y, pos.z + offsetZ);
+    if (minion.isLiving()) {
+      let living = minion as $LivingEntity;
+      living.persistentData.putString("minion_type", config.classe);
+      if (config.attributes) {
+        if (config.attributes.health) {
+          living.maxHealth = config.attributes.health;
+          living.health = config.attributes.health;
+        }
+        if (config.attributes.damage) {
+          living.setAttributeBaseValue("minecraft:generic.attack_damage", config.attributes.damage);
+        }
+        if (config.attributes.speed) {
+          living.setAttributeBaseValue("minecraft:generic.movement_speed", config.attributes.speed);
+        }
+        if (config.attributes.armor) {
+          living.setAttributeBaseValue("minecraft:generic.armor", config.attributes.armor);
+        }
       }
-      if (minionConfig.attributes.speed !== undefined) {
-        living.setAttributeBaseValue("minecraft:generic.movement_speed", minionConfig.attributes.speed);
+      if (config.equipment) {
+        applyEquipmentToBoss(living, config.equipment);
       }
-      if (minionConfig.attributes.armor !== undefined) {
-        living.setAttributeBaseValue("minecraft:generic.armor", minionConfig.attributes.armor);
+      if (config.potionEffects) {
+        config.potionEffects.forEach((effect) => {
+          living.potionEffects.add(effect.id, effect.duration, effect.amplifier, false, false);
+        });
       }
-      if (minionConfig.attributes.knockbackResistance !== undefined) {
-        living.setAttributeBaseValue("minecraft:generic.knockback_resistance", minionConfig.attributes.knockbackResistance);
+      if (config.abilities && config.abilities.length > 0) {
+        living.persistentData.putBoolean("kubejs_personalized_minion", true);
+        living.persistentData.putString("kubejs_minion_abilities", JSON.stringify(config.abilities));
+        living.persistentData.putInt("kubejs_minion_lastAbilityTick", level.server.getTickCount());
+      }
+      if (config.name) {
+        living.customName = Text.of(config.name);
+        living.setCustomNameVisible(true);
       }
     }
-    if (minionConfig.potionEffects) {
-      minionConfig.potionEffects.forEach((effect) => {
-        living.potionEffects.add(effect.id, effect.duration, effect.amplifier, false, false);
-      });
-    }
-    living.persistentData.putBoolean("kubejs_isMinion", true);
-    living.persistentData.putByte("PersistenceRequired", 1);
     minion.spawn();
-    spawnedMinions.push(living);
-    level.runCommandSilent(`particle minecraft:poof ${spawnPos.x + 0.5} ${spawnPos.y + 1} ${spawnPos.z + 0.5} 0.3 0.5 0.3 0.1 20 force @a`);
-    level.runCommandSilent(`playsound minecraft:entity.zombie_villager.converted hostile @a ${spawnPos.x} ${spawnPos.y} ${spawnPos.z} 1 0.8`);
   }
-  return spawnedMinions;
 }
