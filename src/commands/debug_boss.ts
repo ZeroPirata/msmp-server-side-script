@@ -59,17 +59,20 @@ ServerEvents.commandRegistry((event) => {
             let overworld = server.overworld();
 
             bossActivationCheckTimer = 0;
+            pendingBossSpawn = null;
+            bossChunkPositions = [];
 
-            overworld.persistentData.remove("kubejs_customDrops");
-            overworld.persistentData.remove("kubejs_damageTracker");
-            overworld.persistentData.remove("kubejs_bossActivated");
-            overworld.persistentData.remove("kubejs_activationRange");
-            overworld.persistentData.remove("kubejs_bossChunkX");
-            overworld.persistentData.remove("kubejs_bossChunkZ");
-            overworld.persistentData.remove("kubejs_personalized_boss");
-            overworld.persistentData.remove("boss_type");
-            overworld.persistentData.remove("kubejs_active_boss_uuid");
-            overworld.persistentData.remove("kubejs_active_boss_config");
+            server.persistentData.remove("kubejs_customDrops");
+            server.persistentData.remove("kubejs_damageTracker");
+            server.persistentData.remove("kubejs_bossActivated");
+            server.persistentData.remove("kubejs_activationRange");
+            server.persistentData.remove("kubejs_bossChunkX");
+            server.persistentData.remove("kubejs_bossChunkZ");
+            server.persistentData.remove("kubejs_personalized_boss");
+            server.persistentData.remove("boss_type");
+            server.persistentData.remove("kubejs_active_boss_uuid");
+            server.persistentData.remove("kubejs_active_boss_config");
+            server.persistentData.remove(TAG_LAST_DAY);
 
             let args = ctx.getInput().split(" ");
             let keyArg = args[1];
@@ -81,8 +84,7 @@ ServerEvents.commandRegistry((event) => {
             let bossId = config[keyArg];
             let bossConfig = MINIBOSSES[bossId];
 
-            let pos = generateRandomPositionBoss(overworld);
-            server.persistentData.remove(TAG_LAST_DAY); // Chama a função de spawn com a configuração correta
+            let pos = generateRandomPositionBoss(overworld); // Chama a função de spawn com a configuração correta
             if (typeof prepareBossSpawn === "function") {
               prepareBossSpawn(overworld, bossConfig, pos.x, pos.y, pos.z);
             } else {

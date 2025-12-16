@@ -85,6 +85,8 @@ function checkBossActivation(server: $MinecraftServer, boss: $LivingEntity) {
 }
 
 function prepareBossSpawn(server: $ServerLevel, bossConfig: IMiniBoss, x: number, y: number, z: number): void {
+  if (server.persistentData.getBoolean("kubejs_bossActivated")) return;
+
   let spawnPos = new BlockPos(x, y, z);
   forceLoadBossChunk(server, spawnPos);
 
@@ -171,6 +173,8 @@ function spawnBossAtPosition(server: $ServerLevel, bossConfig: IMiniBoss, x: num
     if (bossConfig.specialAbilities) {
       applyBossPotions(living, bossConfig.specialAbilities);
     }
+
+    living.nbt.merge({ DeathLootTable: "minecraft:empty" });
 
     living.persistentData.putBoolean("kubejs_customDrops", true);
     living.persistentData.putString("kubejs_damageTracker", JSON.stringify({}));

@@ -1,3 +1,5 @@
+import { $LivingEntity } from "net.minecraft.world.entity.LivingEntity";
+
 function applyEquipmentToBoss(boss: $LivingEntity, equipment: IEquipment): void {
   if (!equipment) return;
   function processEnchantments(config: any): { [key: string]: number } {
@@ -33,7 +35,6 @@ function applyEquipmentToBoss(boss: $LivingEntity, equipment: IEquipment): void 
         item.enchant(enchId, enchants[enchId]);
       });
     }
-
     if (config.nbt) {
       try {
         if (!item.nbt) {

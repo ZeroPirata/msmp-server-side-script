@@ -56,16 +56,16 @@ function enterPhase(boss: $LivingEntity, phase: IBossPhase, phaseIndex: number):
   let bossName = boss.customName?.getString() || "Boss";
 
   if (phase.onEnterMessage) {
-    let nomeFase = "Nova Fase";
-    if (phase.name) {
-      nomeFase = phase.name;
-    }
-
     level.runCommandSilent(`tellraw @a[distance=..64] "${phase.onEnterMessage}"`);
-    level.runCommandSilent(`title @a times 10 40 10`);
-    level.runCommandSilent(`title @a subtitle {"text":"${nomeFase}","color":"gold"}`);
-    level.runCommandSilent(`playsound minecraft:entity.wither.spawn hostile @a ${boss.x} ${boss.y} ${boss.z} 2 1`);
   }
+  let nomeFase = "Nova Fase";
+  if (phase.name) {
+    nomeFase = phase.name;
+  }
+  level.runCommandSilent(`title @a times 10 40 10`);
+  level.runCommandSilent(`title @a title {"text":"${nomeFase}","color":"red","bold":true}`);
+  level.runCommandSilent(`title @a subtitle {"text":"Iniciou a ${phaseIndex}º fase","color":"gold"}`);
+  level.runCommandSilent(`playsound minecraft:entity.wither.spawn hostile @a ${boss.x} ${boss.y} ${boss.z} 2 1`);
   level.runCommandSilent(`particle minecraft:explosion_emitter ${boss.x} ${boss.y + 1} ${boss.z} 1 1 1 0 5 force @a`);
   level.runCommandSilent(`particle minecraft:soul_fire_flame ${boss.x} ${boss.y} ${boss.z} 2 2 2 0.1 100 force @a`);
 

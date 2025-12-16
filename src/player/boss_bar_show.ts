@@ -6,7 +6,7 @@ PlayerEvents.tick((e) => {
   let bossBar: $CustomBossEvent = activeBossBar;
   if (!bossBar) return;
   let server = e.server;
-  let { boss }: { boss: $LivingEntity } = getBossActive(server);
+  let { boss, config }: { boss: $LivingEntity; config: IMiniBoss } = getBossActive(server);
   if (!boss || !boss.isAlive()) {
     bossBar.removePlayer(e.player);
     return;
@@ -16,6 +16,8 @@ PlayerEvents.tick((e) => {
   let distance = position.distSqr(bossPosition);
   const VISIBILITY_RANGE = 32 * 32; // 1024 blocks
   let hasBossBar = bossBar.getPlayers().contains(e.player);
+  let playerUuid = e.player.stringUuid;
+  let bossUuid = boss.stringUuid;
   if (distance > VISIBILITY_RANGE) {
     if (hasBossBar) {
       bossBar.removePlayer(e.player);
@@ -24,5 +26,9 @@ PlayerEvents.tick((e) => {
   }
   if (!hasBossBar) {
     bossBar.addPlayer(e.player);
+    if (!hasPlayerSeenBoss(playerUuid, bossUuid, server)) {
+      showBossIntroduction(e.player, boss, config, server);
+      markBossAsSeen(playerUuid, bossUuid, server);
+    }
   }
 });

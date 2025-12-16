@@ -19,6 +19,24 @@ EntityEvents.death((event) => {
   }
 
   let bossUUID = entity.uuid.toString();
+  let source = event.source.actual;
+  if (source && source.isPlayer()) {
+    let playerUUID = source.uuid.toString();
+    let maxHealth = entity.maxHealth;
+    if (!damageAccumulator.has(bossUUID)) {
+      damageAccumulator.set(bossUUID, new Map());
+    }
+    let bossTracker = damageAccumulator.get(bossUUID);
+    let currentTotal = 0;
+    bossTracker.forEach((dmg) => (currentTotal += dmg));
+    let missingDamage = maxHealth - currentTotal;
+    if (missingDamage > 0) {
+      let currentDamage = bossTracker.get(playerUUID) || 0;
+      bossTracker.set(playerUUID, currentDamage + missingDamage);
+      console.log(`[BOSS DEATH] Adicionando ${missingDamage} de dano final para ${source.username}`);
+    }
+  }
+
   if (damageAccumulator.has(bossUUID)) {
     let tracker = damageAccumulator.get(bossUUID);
     let existingTracker = pd.getString("kubejs_damageTracker");
