@@ -9,6 +9,11 @@ function initNightState(day: number): NightSpawnState {
 }
 
 function saveNightState(server: $MinecraftServer, state: NightSpawnState): void {
+  if (!state) {
+    server.persistentData.remove("kubejs_night_state");
+    return;
+  }
+
   server.persistentData.putString(
     "kubejs_night_state",
     JSON.stringify({

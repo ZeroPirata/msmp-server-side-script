@@ -50,7 +50,7 @@ ServerEvents.tick((e) => {
     if (currentNightState && currentNightState.day < currentDay) {
       console.log(`[MULTI-BOSS] Novo dia amanheceu. Resetando estado da noite.`);
       currentNightState = null;
-      saveNightState(server, null);
+      server.persistentData.remove("kubejs_night_state");
     }
     return; // Agora este return é válido porque está dentro do tick
   }
