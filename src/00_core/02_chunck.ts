@@ -23,10 +23,21 @@ function forceLoadBossChunk(level: $ServerLevel, pos: BlockPos) {
   }
 }
 
-function removeBossChunkForceLoad(level: $ServerLevel) {
-  if (bossChunkPositions.length === 0) return;
-  bossChunkPositions.forEach((chunk) => {
-    level.setChunkForced(chunk.x, chunk.z, false);
-  });
-  bossChunkPositions = [];
+function removeBossChunkForceLoad(level: $ServerLevel, bossUuid: string): void {
+  if (!bossUuid) {
+    console.log("[MULTI-BOSS] removeBossChunkForceLoad: bossUuid está undefined");
+    return;
+  }
+
+  let bossUuidFormated = bossUuid.split("-").join("").toLowerCase();
+  let bossData = activeBosses[bossUuidFormated];
+  if (!bossData) return;
+
+  let boss = findBossByUuid(level.server, bossUuid);
+  if (!boss) return;
+
+  let chunkX = boss.persistentData.getInt("kubejs_bossChunkX");
+  let chunkZ = boss.persistentData.getInt("kubejs_bossChunkZ");
+
+  level.setChunkForced(chunkX, chunkZ, false);
 }

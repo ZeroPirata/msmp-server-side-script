@@ -5,17 +5,15 @@ import { $Level } from "net.minecraft.world.level.Level";
 import { $ChunkPos } from "net.minecraft.world.level.ChunkPos";
 import { $Registry } from "net.minecraft.core.Registry";
 
-function bossPhases(boss: $LivingEntity, config: IMiniBoss, level: $MinecraftServer): void {
-  let currentTick = level.getTickCount();
+function bossPhases(boss: $LivingEntity, config: IMiniBoss, server: $MinecraftServer, bossUuid: string): void {
+  let currentTick = server.getTickCount();
   let currentHealth = boss.health;
   let maxHealth = boss.maxHealth;
   let healthPercentage = currentHealth / maxHealth;
   let percentDisplay = (healthPercentage * 100).toFixed(1);
-
-  updateBossBarProgress(healthPercentage);
+  updateBossBarForBoss(bossUuid, server, undefined, healthPercentage);
 
   let activePhaseIndex = -1;
-
   if (config.phases) {
     for (let i = config.phases.length - 1; i >= 0; i--) {
       if (healthPercentage <= config.phases[i].threshold) {
@@ -24,12 +22,12 @@ function bossPhases(boss: $LivingEntity, config: IMiniBoss, level: $MinecraftSer
       }
     }
   }
+
   if (activePhaseIndex === -1) {
     activePhaseIndex = 0;
   }
 
   let currentPhaseKey = boss.persistentData.getInt("currentPhase") || 0;
-
   if (currentPhaseKey !== activePhaseIndex) {
     if (activePhaseIndex > currentPhaseKey) {
       enterPhase(boss, config.phases[activePhaseIndex], activePhaseIndex);
@@ -39,14 +37,13 @@ function bossPhases(boss: $LivingEntity, config: IMiniBoss, level: $MinecraftSer
       activePhaseIndex = currentPhaseKey;
     }
   }
-  let nameBoss = "";
 
-  updateBossBarName(`${config.name} - §7[${percentDisplay}%]`);
+  updateBossBarForBoss(bossUuid, server, `${config.name} - §7[${percentDisplay}%]`);
+
   if (!config.phases) return;
   let finalPhase = config.phases[activePhaseIndex];
-  updateBossBarColor(finalPhase.bossBarColor || "GREEN");
-  updateBossBarOverlay(finalPhase.bossBarOverlay || "PROGRESS");
-  executePhaseAbilities(boss, finalPhase || null, level);
+  updateBossBarForBoss(bossUuid, server, undefined, undefined, finalPhase.bossBarColor || "GREEN", finalPhase.bossBarOverlay || "PROGRESS");
+  executePhaseAbilities(boss, finalPhase || null, server);
 }
 
 function enterPhase(boss: $LivingEntity, phase: IBossPhase, phaseIndex: number): void {

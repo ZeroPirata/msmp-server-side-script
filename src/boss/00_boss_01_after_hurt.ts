@@ -3,20 +3,20 @@ EntityEvents.afterHurt((event) => {
   let pd = e.persistentData;
 
   if (!pd.contains("kubejs_customDrops")) return;
-  let source = event.source.actual;
 
+  let source = event.source.actual;
   if (!source || !source.isPlayer()) return;
+
   let player = source;
   let damage = event.damage;
-
   let bossUUID = e.uuid.toString();
   let playerUUID = player.uuid.toString();
 
-  if (!damageAccumulator.has(bossUUID)) {
-    damageAccumulator.set(bossUUID, new Map());
+  if (!(bossUUID in damageAccumulator)) {
+    damageAccumulator[bossUUID] = {};
   }
 
-  let bossTracker = damageAccumulator.get(bossUUID);
-  let currentDamage = bossTracker.get(playerUUID) || 0;
-  bossTracker.set(playerUUID, currentDamage + damage);
+  let bossTracker = damageAccumulator[bossUUID];
+  let currentDamage = bossTracker[playerUUID] || 0;
+  bossTracker[playerUUID] = currentDamage + damage;
 });

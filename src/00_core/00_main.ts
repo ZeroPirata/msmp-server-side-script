@@ -12,7 +12,10 @@ let DEFAULT_CONFIG = {
   MIN_DISTANCE: 0,
   MAX_DISTANCE: 10,
   MIN_DAY: 1,
-  CHANCE_PERCENT: 1.0
+  CHANCE_PERCENT: 0.7,
+  MAX_BOSS_NIGHT: 5,
+  MAX_SPAWN_ATTEMPTS: 10,
+  MIN_BOSS_DISTANCE: 200
 };
 
 // boss management
@@ -27,7 +30,7 @@ let pendingBossSpawn: {
 } | null = null;
 
 let activeBossBar: $CustomBossEvent | null = null;
-let damageAccumulator = new Map<string, Map<string, number>>();
+let damageAccumulator: { [bossUUID: string]: { [playerUUID: string]: number } } = {};
 let TAG_LAST_DAY = "msmp_last_boss_spawn_day";
 
 // Minecraft Classes
@@ -55,3 +58,9 @@ let RITUAL_HEIGHT = 4; // 4 blocos acima
 let HEAL_PER_SECOND = 5; // 0.25 HP/tick × 20 = 5 HP/seg
 let BEAM_UPDATE_TICKS = 5; // Faixes a cada 0.25 seg
 let RITUAL_PARTICLE_TICKS = 10; // Partículas a cada 0.5 seg
+
+//
+let activeBosses = {};
+let pendingBosses: Array<PendingBossData> = [];
+let currentNightState: NightSpawnState | null = null;
+let bossActivationCheckTimers = {};

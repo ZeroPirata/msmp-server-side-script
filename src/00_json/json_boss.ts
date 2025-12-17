@@ -13,6 +13,7 @@ let BOSS_NAME_FOR_CONFIG = {
 };
 
 let BOSS_1: IMiniBoss = {
+  difficulty: "FACIL",
   id: "minecraft:zombie",
   name: "§fZumbi de Teste",
   lootrName: "teste_lootr",
@@ -35,6 +36,7 @@ let BOSS_1: IMiniBoss = {
 };
 
 let BOSS_2: IMiniBoss = {
+  difficulty: "FACIL",
   spawnWeight: 10,
   id: "minecraft:skeleton",
   lootrName: "teste_lootr",
@@ -57,6 +59,7 @@ let BOSS_2: IMiniBoss = {
 };
 
 let BOSS_3: IMiniBoss = {
+  difficulty: "FACIL",
   id: "minecraft:zombie",
   name: "§5Zumbi Invocador",
   health: 100,
@@ -97,6 +100,7 @@ let BOSS_3: IMiniBoss = {
 };
 
 let BOSS_4: IMiniBoss = {
+  difficulty: "FACIL",
   id: "minecraft:skeleton",
   name: "§eAtirador Esquelético",
   health: 80,
@@ -126,6 +130,7 @@ let BOSS_4: IMiniBoss = {
 };
 
 let BOSS_5: IMiniBoss = {
+  difficulty: "FACIL",
   id: "minecraft:zombie",
   name: "§2Zumbi Tanque",
   health: 150,
@@ -159,6 +164,7 @@ let BOSS_5: IMiniBoss = {
 };
 
 let BOSS_6: IMiniBoss = {
+  difficulty: "FACIL",
   id: "minecraft:skeleton",
   name: "§dEsqueleto Evasivo",
   health: 60,
@@ -198,6 +204,7 @@ let BOSS_6: IMiniBoss = {
 };
 
 let BOSS_7: IMiniBoss = {
+  difficulty: "FACIL",
   id: "minecraft:zombie",
   name: "§cZumbi Furioso",
   health: 80,
@@ -225,6 +232,7 @@ let BOSS_7: IMiniBoss = {
 };
 
 let BOSS_8: IMiniBoss = {
+  difficulty: "FACIL",
   id: "minecraft:zombie",
   name: "§8Necromante Zumbi",
   health: 120,
@@ -300,6 +308,7 @@ let BOSS_8: IMiniBoss = {
 };
 
 let BOSS_9: IMiniBoss = {
+  difficulty: "FACIL",
   id: "minecraft:skeleton",
   name: "§bGuardião de Cristal",
   health: 200,
@@ -385,6 +394,7 @@ let BOSS_9: IMiniBoss = {
 };
 
 let BOSS_10: IMiniBoss = {
+  difficulty: "FACIL",
   id: "minecraft:zombie",
   name: "§9Zumbi Tempestuoso",
   health: 130,
@@ -531,7 +541,7 @@ let BOSS_11: IMiniBoss = {
       threshold: 0.65,
       name: "Fase de Fúria",
       onEnterMessage: "§6Lorde Esquelético: 'Minha fúria é infinita!'",
-      bossBarColor: "ORANGE",
+      bossBarColor: "GREEN",
       abilities: [
         {
           type: "enrage",

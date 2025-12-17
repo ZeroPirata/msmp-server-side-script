@@ -1,5 +1,6 @@
 interface IMiniBoss extends IEnemy {
   lootrName: string; // Nome do baú lootr associado
+  difficulty: BossDifficulty; // Dificuldade do boss
   spawnWeight: number; // Peso de spawn em relação a outros minibosses
   phases?: IBossPhase[]; // ← NOVO: Array de fases
   immuneTo?: string[]; // Imune a certos danos
@@ -30,4 +31,37 @@ interface IPlayerScaling {
   attackFactor?: number; // Ex: 0.25 (25% do ataque base extra por jogador)
   armorFactor?: number; // 3. Fator de Armadura/Defesa (Opcional, se o boss for muito focado em defesa)
   dropMultiplierFactor?: number; // 4. Fator de Drops (Opcional: Aumentar a chance/quantidade total de drops)
+}
+
+type BossDifficulty = "FACIL" | "NORMAL" | "MEDIO" | "DIFICIL" | "RAID";
+
+interface DifficultyWeight {
+  difficulty: BossDifficulty;
+  baseWeight: number;
+  dayMultiplier: number;
+}
+
+interface ActiveBossData {
+  uuid: string;
+  config: IMiniBoss;
+  bossBarId: string;
+  spawnDay: number;
+  position: { x: number; y: number; z: number };
+}
+
+interface PendingBossData {
+  config: IMiniBoss;
+  x: number;
+  y: number;
+  z: number;
+  activationRange: number;
+  spawnDay: number;
+}
+
+interface NightSpawnState {
+  day: number;
+  spawnedCount: number;
+  attemptCount: number;
+  spawnedDifficulties: { [key: string]: number };
+  spawnedPositions: Array<{ x: number; z: number }>;
 }

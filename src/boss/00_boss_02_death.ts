@@ -6,43 +6,74 @@ EntityEvents.death((event) => {
 
   if (!pd.contains("kubejs_customDrops")) return;
 
-  let msmpConfig = getMsmpConfig(server);
-  if (msmpConfig === null) {
-    console.log(`[BOSS DEATH] ERRO: msmpConfig é null!`);
-    return;
-  }
-
-  let { boss, config } = getBossActive(server);
-  if (!boss || !config) {
-    console.log(`[BOSS DEATH] ERRO: Boss ou config não encontrado!`);
-    return;
-  }
-
   let bossUUID = entity.uuid.toString();
+  let bossUuidFormated = bossUUID.split("-").join("").toLowerCase();
+  console.log(`[MULTI-BOSS DEATH] Boss morreu com UUID: ${bossUUID}`);
+  console.log(`[MULTI-BOSS DEATH] UUID formatado: ${bossUuidFormated}`);
+
+  let bossData = activeBosses[bossUuidFormated];
+
+  if (!bossData) {
+    console.log(`[MULTI-BOSS DEATH] Boss não encontrado nos ativos. Tentando recuperar config...`);
+    let bossType = pd.getString("boss_type");
+    let possibleConfig = MINIBOSSES.find((b) => b.classe === bossType);
+    if (!possibleConfig) {
+      console.log(`[MULTI-BOSS DEATH] ERRO: Não foi possível recuperar config do boss tipo: ${bossType}`);
+      console.log(`[MULTI-BOSS DEATH] Boss UUID: ${bossUUID}`);
+      console.log(`[MULTI-BOSS DEATH] Bosses ativos: ${Object.keys(activeBosses).length}`);
+      let bossKeys = Object.keys(activeBosses);
+      for (let i = 0; i < bossKeys.length; i++) {
+        let uuid = bossKeys[i];
+        let data = activeBosses[uuid];
+        console.log(`[MULTI-BOSS DEATH]   - ${uuid}: ${data.config.name}`);
+      }
+      return;
+    }
+    bossData = {
+      uuid: bossUUID,
+      config: possibleConfig,
+      bossBarId: bossUuidFormated,
+      spawnDay: Math.floor(level.dayTime() / 24000),
+      position: { x: entity.x, y: entity.y, z: entity.z }
+    };
+  }
+
+  let config = bossData.config;
+  let msmpConfig = getMsmpConfig(server);
+
   let source = event.source.actual;
   if (source && source.isPlayer()) {
     let playerUUID = source.uuid.toString();
     let maxHealth = entity.maxHealth;
-    if (!damageAccumulator.has(bossUUID)) {
-      damageAccumulator.set(bossUUID, new Map());
+
+    if (!(bossUUID in damageAccumulator)) {
+      damageAccumulator[bossUUID] = {};
     }
-    let bossTracker = damageAccumulator.get(bossUUID);
+
+    let bossTracker = damageAccumulator[bossUUID];
     let currentTotal = 0;
-    bossTracker.forEach((dmg) => (currentTotal += dmg));
+    let playerUUIDs = Object.keys(bossTracker);
+    for (let i = 0; i < playerUUIDs.length; i++) {
+      currentTotal += bossTracker[playerUUIDs[i]];
+    }
+
     let missingDamage = maxHealth - currentTotal;
     if (missingDamage > 0) {
-      let currentDamage = bossTracker.get(playerUUID) || 0;
-      bossTracker.set(playerUUID, currentDamage + missingDamage);
-      console.log(`[BOSS DEATH] Adicionando ${missingDamage} de dano final para ${source.username}`);
+      let currentDamage = bossTracker[playerUUID] || 0;
+      bossTracker[playerUUID] = currentDamage + missingDamage;
+      console.log(`[MULTI-BOSS DEATH] Adicionando ${missingDamage} de dano final para ${source.username}`);
     }
   }
 
-  if (damageAccumulator.has(bossUUID)) {
-    let tracker = damageAccumulator.get(bossUUID);
+  if (bossUUID in damageAccumulator) {
+    let tracker = damageAccumulator[bossUUID];
     let existingTracker = pd.getString("kubejs_damageTracker");
     let fullTracker: DamageTracker = existingTracker ? JSON.parse(existingTracker) : {};
 
-    tracker.forEach((damage, playerUUID) => {
+    let playerUUIDs = Object.keys(tracker);
+    for (let i = 0; i < playerUUIDs.length; i++) {
+      let playerUUID = playerUUIDs[i];
+      let damage = tracker[playerUUID];
       if (!fullTracker[playerUUID]) {
         let player = server.getPlayerList().getPlayer(playerUUID);
         fullTracker[playerUUID] = {
@@ -51,10 +82,10 @@ EntityEvents.death((event) => {
         };
       }
       fullTracker[playerUUID].damage += damage;
-    });
+    }
 
     pd.putString("kubejs_damageTracker", JSON.stringify(fullTracker));
-    damageAccumulator.delete(bossUUID);
+    delete damageAccumulator[bossUUID];
   }
 
   if (pd.contains("kubejs_damageTracker")) {
@@ -71,18 +102,14 @@ EntityEvents.death((event) => {
 
       let ranking = uuids.map((uuid) => {
         let data = tracker[uuid];
-        return {
-          uuid: uuid,
-          playerName: data.playerName,
-          damage: data.damage
-        };
+        return { uuid: uuid, playerName: data.playerName, damage: data.damage };
       });
 
       ranking.sort((a, b) => b.damage - a.damage);
 
       let winnerMessages: string[] = [];
       winnerMessages.push("§a=======================================");
-      winnerMessages.push("§cBOSS DERROTADO! PARTICIPANTES DA RAID");
+      winnerMessages.push(`§c${config.name} DERROTADO!`);
       winnerMessages.push("§a=======================================");
 
       let activePlayers: string[] = [];
@@ -93,12 +120,13 @@ EntityEvents.death((event) => {
           let damagePercent = data.damage / totalDamage;
           let rankDisplay = rankingPlayersRaid(rank);
           let damageP = (damagePercent * 100).toFixed(1);
-          winnerMessages.push(`${rankDisplay} §r- §b${data.playerName} §7(Dano: ${damageP}%)`);
+          winnerMessages.push(`${rankDisplay} §r- §b${data.playerName} §7(${damageP}%)`);
 
           let lootTableSuffix = demageLootCalculate(damagePercent);
           let lootTable = `kubejs:${config.lootrName}_${lootTableSuffix}`;
           let offsetX = index * 2;
           let chestPos = new BlockPos(bossPos.x + offsetX, bossPos.y + 1, bossPos.z);
+
           let setblockCommand = `setblock ${chestPos.x} ${chestPos.y} ${chestPos.z} lootr:lootr_chest{LootTable:"${lootTable}",CustomName:'{"text":"§6${data.playerName}"}'} replace`;
           server.runCommandSilent(setblockCommand);
 
@@ -110,33 +138,43 @@ EntityEvents.death((event) => {
             used: false,
             dropMultiplier: dropMultiplier
           };
+
           server.persistentData.putString(key, JSON.stringify(save));
           saveChestKey(data.uuid, { pos: chestPos, ticks: 0 }, server);
           activePlayers.push(data.uuid);
+
           server.runCommandSilent(`particle minecraft:totem_of_undying ${chestPos.x + 0.5} ${chestPos.y + 1} ${chestPos.z + 0.5} 0.2 0.2 0.2 0.05 15 force @a`);
         });
 
         saveActiveChestPlayers(activePlayers, server);
         winnerMessages.push("§a=======================================");
+
         winnerMessages.forEach((line) => {
           server.runCommandSilent(`execute positioned ${bossPos.x} ${bossPos.y} ${bossPos.z} run tellraw @a[distance=..64] "${line}"`);
         });
-        let minutes = msmpConfig.DELAY_TICKS / 1200;
-        activePlayers.forEach((uuid) => {
-          let player = server.getPlayerList().getPlayer(uuid);
-          if (player) {
-            player.tell(`§eO baú irá desaparecer em ${minutes} minutos!`);
-          }
-        });
+
+        if (msmpConfig) {
+          let minutes = msmpConfig.DELAY_TICKS / 1200;
+          activePlayers.forEach((uuid) => {
+            let player = server.getPlayerList().getPlayer(uuid);
+            if (player) {
+              player.tell(`§eO baú irá desaparecer em ${minutes} minutos!`);
+            }
+          });
+        }
+
+        console.log(`[MULTI-BOSS DEATH] Recompensas distribuídas para ${activePlayers.length} players`);
       });
     }
   }
 
+  // Limpa dados
   pd.remove("kubejs_damageTracker");
   pd.remove("kubejs_isEnraged");
   pd.remove("kubejs_maxHealth");
   pd.remove("kubejs_bossActivated");
   pd.remove("kubejs_activationRange");
+
   for (let i = 0; i < 10; i++) {
     pd.remove(`phase_${i}_crystals`);
     pd.remove(`phase_${i}_crystalDamage`);
@@ -150,4 +188,6 @@ EntityEvents.death((event) => {
   }
   pd.remove("currentPhase");
   pd.remove("lastPhaseChangeTick");
+
+  unregisterActiveBoss(server, bossUUID);
 });

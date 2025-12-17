@@ -8,67 +8,52 @@ import { $ChunkPos } from "net.minecraft.world.level.ChunkPos";
 import { $CustomBossEvent } from "net.minecraft.server.bossevents.CustomBossEvent";
 import { $BossEvent$BossBarOverlay } from "net.minecraft.world.BossEvent$BossBarOverlay";
 
+function createBossBarForBoss(server: $MinecraftServer, bossUuid: string, bossName: string, color: string, overlay: string): $CustomBossEvent {
+  let bossUuidFormated = bossUuid.toString().split("-").join("").toLowerCase();
+  let bossBarId = `${bossUuidFormated}`;
 
-
-function createBossBar(server: $MinecraftServer, bossName: string, color, overlay: string) {
-  let bossBarId;
+  let resourceLocation;
   try {
-    bossBarId = new ResourceLocation("msmp", "boss_bar");
+    resourceLocation = new ResourceLocation("msmp", bossBarId);
   } catch (e) {
-    console.log("[BOSS BAR] Tentando método alternativo...");
-    bossBarId = ResourceLocation.of("msmp:boss_bar");
+    resourceLocation = ResourceLocation.of(`msmp:${bossBarId}`);
   }
-  color = color || "RED";
-  overlay = overlay || "PROGRESS";
-  if (activeBossBar) {
-    removeBossBar(server);
-  }
+
   let barColor = BossBarColor[color] || BossBarColor.RED;
   let barOverlay = BossBarOverlay[overlay] || BossBarOverlay.PROGRESS;
-  let bossBar = server.customBossEvents.create(
-    bossBarId, // ID único
-    Text.of(bossName)
-  );
+
+  let bossBar = server.customBossEvents.create(resourceLocation, Text.of(bossName));
   bossBar.setColor(barColor);
   bossBar.setOverlay(barOverlay);
   bossBar.setDarkenScreen(false);
   bossBar.setPlayBossMusic(true);
   bossBar.setCreateWorldFog(false);
-  activeBossBar = bossBar;
   return bossBar;
 }
 
-function updateBossBarName(newName: string): void {
-  if (!activeBossBar) return;
-  activeBossBar.name = Text.of(newName);
+function updateBossBarForBoss(bossUuid: string, server: $MinecraftServer, name?: string, progress?: number, color?: string, overlay?: string): void {
+  let bossUuidFormated = bossUuid.toString().split("-").join("").toLowerCase();
+  let bossData = activeBosses[bossUuidFormated];
+  if (!bossData) return;
+  if (!server) return;
+
+  let bossBarId = new ResourceLocation("msmp", `${bossUuidFormated}`);
+  let bossBar = server.customBossEvents.get(bossBarId);
+  if (!bossBar) return;
+  if (name) bossBar.name = Text.of(name);
+  if (progress !== undefined) bossBar.setProgress(progress);
+  if (color) bossBar.setColor(BossBarColor[color] || BossBarColor.RED);
+  if (overlay) bossBar.setOverlay(BossBarOverlay[overlay] || BossBarOverlay.PROGRESS);
 }
 
-function updateBossBarColor(color: string): void {
-  if (!activeBossBar) return;
-  let barColor = BossBarColor[color] || BossBarColor.RED;
-  activeBossBar.setColor(barColor);
-}
-
-function updateBossBarOverlay(overlay: string): void {
-  if (!activeBossBar) return;
-  let barOverlay = BossBarOverlay[overlay] || BossBarOverlay.PROGRESS;
-  activeBossBar.setOverlay(barOverlay);
-}
-
-function updateBossBarProgress(progress: number): void {
-  if (!activeBossBar) return;
-  activeBossBar.setProgress(progress);
-}
-
-function removeBossBar(server: $MinecraftServer): void {
-  if (!activeBossBar) return;
-  activeBossBar.removeAllPlayers();
-  server.customBossEvents.remove(activeBossBar);
-  activeBossBar = null;
-  console.log(`[BOSS BAR] Removida`);
-}
-
-function removePlayerFromBossBar(player: $ServerPlayer): void {
-  if (!activeBossBar) return;
-  activeBossBar.removePlayer(player);
+function removeBossBarForBoss(server: $MinecraftServer, bossUuid: string): void {
+  let bossUuidFormated = bossUuid.toString().split("-").join("").toLowerCase();
+  let bossData = activeBosses[bossUuidFormated];
+  if (!bossData) return;
+  let bossBarId = new ResourceLocation(`msmp`, `${bossUuidFormated}`);
+  let bossBar = server.customBossEvents.get(bossBarId);
+  if (bossBar) {
+    bossBar.removeAllPlayers();
+    server.customBossEvents.remove(bossBar);
+  }
 }
