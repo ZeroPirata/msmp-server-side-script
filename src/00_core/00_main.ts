@@ -52,6 +52,7 @@ let AvoidEntityGoal = Java.loadClass("net.minecraft.world.entity.ai.goal.AvoidEn
 let MeleeAttackGoal = Java.loadClass("net.minecraft.world.entity.ai.goal.MeleeAttackGoal");
 let RangedBowAttackGoal = Java.loadClass("net.minecraft.world.entity.ai.goal.RangedBowAttackGoal");
 let Player = Java.loadClass("net.minecraft.world.entity.player.Player");
+let HeightmapTypes = Java.loadClass("net.minecraft.world.level.levelgen.Heightmap$Types");
 
 // Ritual Constants
 let RITUAL_HEIGHT = 4; // 4 blocos acima

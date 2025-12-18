@@ -5,6 +5,8 @@ import { $BlockPos } from "net.minecraft.core.BlockPos";
 import { $MinecraftServer } from "net.minecraft.server.MinecraftServer";
 import { $Level } from "net.minecraft.world.level.Level";
 import { $ChunkPos } from "net.minecraft.world.level.ChunkPos";
+import { $Heightmap } from "net.minecraft.world.level.levelgen.Heightmap";
+import { $Heightmap$Types } from "net.minecraft.world.level.levelgen.Heightmap$Types";
 
 console.log("[MSMP] Carregando core de boss...");
 
@@ -12,15 +14,20 @@ function asLiving(entity: $Entity): $LivingEntity | null {
   return entity as unknown as $LivingEntity;
 }
 
-function getSafeSpawnPos(level: $ServerLevel, x: number, z: number): BlockPos {
-  let y = level.getHeight();
-  let pos = new BlockPos(x, y, z);
+function getSafeSpawnPos(level: $ServerLevel, x: number, z: number, spawnY: number): BlockPos {
+  let surfaceY = level.getHeight(HeightmapTypes.MOTION_BLOCKING_NO_LEAVES, x, z);
 
-  while (y > level.getMinBuildHeight() && level.getBlockState(pos).isAir()) {
-    y--;
-    pos = new BlockPos(x, y, z);
+  let maxY = spawnY + 15;
+  if (surfaceY > maxY) {
+    surfaceY = maxY;
+    while (surfaceY > level.getMinBuildHeight()) {
+      let blockBelow = level.getBlockState(new BlockPos(x, surfaceY - 1, z));
+      if (blockBelow.isSolid()) break;
+      surfaceY--;
+    }
   }
-  return new BlockPos(x, y + 3, z);
+
+  return new BlockPos(x, surfaceY, z);
 }
 
 function generateRandomPositionBoss(server: $ServerLevel) {
@@ -32,7 +39,7 @@ function generateRandomPositionBoss(server: $ServerLevel) {
   let distance = msmpConfig.SPAWN_SAFE_RADIUS + distanceOffset;
   let x = Math.floor(spawn.x + distance * Math.cos(angle));
   let z = Math.floor(spawn.z + distance * Math.sin(angle));
-  let pos = getSafeSpawnPos(server, x, z);
+  let pos = getSafeSpawnPos(server, x, z, spawn.y);
   return pos;
 }
 
