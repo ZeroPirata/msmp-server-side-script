@@ -47,6 +47,10 @@ function activateBoss(boss: $LivingEntity, player: $ServerPlayer, level: $Server
   boss.nbt.putBoolean("NoAI", false);
   boss.persistentData.putBoolean("kubejs_bossActivated", true);
 
+  if (boss.vehicle) {
+    boss.vehicle.nbt.putBoolean("NoAI", false);
+  }
+
   level.runCommandSilent(`particle minecraft:explosion_emitter ${boss.x} ${boss.y + 1} ${boss.z} 0 0 0 1 5 force`);
   level.runCommandSilent(`particle minecraft:flame ${boss.x} ${boss.y} ${boss.z} 1 1 1 0.1 50 force`);
   level.runCommandSilent(`playsound minecraft:entity.ender_dragon.growl hostile @a ${boss.x} ${boss.y} ${boss.z} 2 0.8`);

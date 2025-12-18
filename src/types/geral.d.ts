@@ -33,6 +33,7 @@ interface IEnemy {
   speed: number;
   drops?: IDrops[];
   equipment?: IEquipment;
+  mount?: MountConfig; // Montaria
 }
 
 interface ICrystalData {

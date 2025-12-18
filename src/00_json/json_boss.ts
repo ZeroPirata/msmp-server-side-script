@@ -130,7 +130,7 @@ let BOSS_4: IMiniBoss = {
 };
 
 let BOSS_5: IMiniBoss = {
-  difficulty: "FACIL",
+  difficulty: "MEDIO",
   id: "minecraft:zombie",
   name: "§2Zumbi Tanque",
   health: 150,
@@ -141,6 +141,11 @@ let BOSS_5: IMiniBoss = {
   lootrName: "teste_lootr",
   spawnWeight: 1,
   classe: "tank_brawler",
+  mount: {
+      id: "minecraft:skeleton_horse",
+      name: "§7Cavalo Sombrio",
+      health: 500
+    },
   phases: [
     {
       threshold: 1.0,
@@ -164,7 +169,7 @@ let BOSS_5: IMiniBoss = {
 };
 
 let BOSS_6: IMiniBoss = {
-  difficulty: "FACIL",
+  difficulty: "MEDIO",
   id: "minecraft:skeleton",
   name: "§dEsqueleto Evasivo",
   health: 60,
@@ -175,6 +180,11 @@ let BOSS_6: IMiniBoss = {
   lootrName: "teste_lootr",
   spawnWeight: 1,
   classe: "assassin",
+  mount: {
+      id: "minecraft:skeleton_horse",
+      name: "§7Cavalo Sombrio",
+      health: 500
+    },
   equipment: {
     mainHand: {
       id: "born_in_chaos_v1:intoxicating_dagger",

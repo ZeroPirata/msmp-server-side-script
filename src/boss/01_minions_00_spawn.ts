@@ -1,10 +1,17 @@
 EntityEvents.spawned((event) => {
   let minion = event.entity;
-  if (!minion.persistentData.getBoolean("kubejs_personalized_minion")) return;
+  if (!minion.persistentData.getBoolean("kubejs_personalized_minion") && !pd.getBoolean("kubejs_boss_mount")) return;
   if (!(minion instanceof Java.loadClass("net.minecraft.world.entity.PathfinderMob"))) return;
 
   let pathfinderMinion = minion as $PathfinderMob;
   pathfinderMinion.targetSelector.addGoal(1, new NearestAttackableTargetGoal(pathfinderMinion, Player, true));
+
+  if (pd.getBoolean("kubejs_boss_mount") && !bossType) {
+    let passenger = entity.passengers[0];
+    if (passenger) {
+      bossType = passenger.persistentData.getString("boss_type");
+    }
+  }
 
   let minionType = minion.persistentData.getString("minion_type");
 

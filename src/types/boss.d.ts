@@ -65,3 +65,9 @@ interface NightSpawnState {
   spawnedDifficulties: { [key: string]: number };
   spawnedPositions: Array<{ x: number; z: number }>;
 }
+
+interface MountConfig {
+  id: string;
+  name?: string;
+  health?: number;
+}

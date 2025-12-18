@@ -2,14 +2,21 @@ EntityEvents.spawned((event) => {
   let entity = event.entity;
   let pd = entity.persistentData;
 
-  if (!pd.getBoolean("kubejs_personalized_boss")) return;
+  if (!pd.getBoolean("kubejs_personalized_boss") && !pd.getBoolean("kubejs_boss_mount")) return;
   if (!(entity instanceof Java.loadClass("net.minecraft.world.entity.PathfinderMob"))) return;
 
   let pathfinderMob = entity as $PathfinderMob;
   let bossType = pd.getString("boss_type");
 
+  if (pd.getBoolean("kubejs_boss_mount") && !bossType) {
+    let passenger = entity.passengers[0];
+    if (passenger) {
+      bossType = passenger.persistentData.getString("boss_type");
+    }
+  }
+
   // Prioridade 1: Alvo (Sempre ataca o Jogador mais próximo)
-  pathfinderMob.targetSelector.addGoal(1, new NearestAttackableTargetGoal(pathfinderMob, Player, true));
+  pathfinderMob.targetSelector.addGoal(1, new NearestAttackableTargetGoal(pathfinderMob, Player, false));
 
   switch (bossType) {
     case "mage_summoner":
@@ -57,7 +64,7 @@ EntityEvents.spawned((event) => {
       break;
 
     case "tank_brawler":
-      pathfinderMob.goalSelector.addGoal(1, new MeleeAttackGoal(pathfinderMob, 0.9, true));
+      pathfinderMob.goalSelector.addGoal(1, new MeleeAttackGoal(pathfinderMob, 0.9, false));
       pathfinderMob.goalSelector.addGoal(2, new LookAtPlayerGoal(pathfinderMob, Player, 8.0));
       pathfinderMob.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(pathfinderMob, 0.5));
       break;
@@ -76,7 +83,7 @@ EntityEvents.spawned((event) => {
       break;
 
     case "armored_juggernaut":
-      pathfinderMob.goalSelector.addGoal(1, new MeleeAttackGoal(pathfinderMob, 0.7, true));
+      pathfinderMob.goalSelector.addGoal(1, new MeleeAttackGoal(pathfinderMob, 0.7, false));
       pathfinderMob.goalSelector.addGoal(2, new LookAtPlayerGoal(pathfinderMob, Player, 6.0));
       pathfinderMob.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(pathfinderMob, 0.4));
       break;
