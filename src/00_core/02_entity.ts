@@ -35,7 +35,6 @@ function executeMinionAbility(minion: $LivingEntity, ability: IMinionAbility, le
       if (ability.config.spellId) {
         level.runCommandSilent(`execute as ${minion.stringUuid} at @s run tp @s ~ ~ ~ facing entity ${nearestPlayer.stringUuid} eyes`);
         level.runCommandSilent(`cast ${minion.stringUuid} ${ability.config.spellId}`);
-        console.log(`[MINION] ${minion.customName?.getString() || "Minion"} castou ${ability.config.spellId}`);
       }
       break;
     case "shoot_projectile":

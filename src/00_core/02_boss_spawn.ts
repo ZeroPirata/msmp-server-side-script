@@ -1,3 +1,5 @@
+import { $ServerLevel } from "net.minecraft.server.level.ServerLevel";
+
 function spawnBossAtPositionMulti(server: $ServerLevel, pendingBoss: PendingBossData): void {
   let config = pendingBoss.config;
   let x = pendingBoss.x;
@@ -13,7 +15,7 @@ function spawnBossAtPositionMulti(server: $ServerLevel, pendingBoss: PendingBoss
   }
 
   server.getServer().scheduleInTicks(5, () => {
-    if (config.mount) {
+    if (config.mount?.name) {
       spawnMountedBoss(server, config, x, y, z, spawnDay, chunkX, chunkZ);
     } else {
       spawnStandardBoss(server, config, x, y, z, spawnDay, chunkX, chunkZ);
@@ -22,32 +24,24 @@ function spawnBossAtPositionMulti(server: $ServerLevel, pendingBoss: PendingBoss
 }
 
 function spawnMountedBoss(server: $ServerLevel, config: IMiniBoss, x: number, y: number, z: number, spawnDay: number, chunkX: number, chunkZ: number): void {
-  // 1. Criar o cavalo (mount)
   let mount = createMountEntity(server, config.mount, x, y, z);
   if (!mount) return;
 
-  // 2. Criar o boss como uma entidade viva separada
   let boss = server.createEntity(config.id as any);
   if (!boss) {
     console.log(`[MULTI-BOSS] Falha ao criar boss para montaria: ${config.id}`);
     return;
   }
 
-  // 3. Configurar o boss (posicionamento e atributos)
   setupBaseEntity(boss, config, x, y, z);
   let living = asLiving(boss);
   if (!living) return;
   basicStatusEnemys(living, config);
 
-  // 4. Spawnar ambos no mundo
   mount.spawn();
   living.spawn();
 
-  // 5. Forçar a montaria (A mágica acontece aqui)
-  // true = forçar mesmo que o assento esteja ocupado
   living.startRiding(mount, true);
-
-  // 6. Finalizar setup no próximo tick para garantir que o UUID existe
   server.getServer().scheduleInTicks(2, () => {
     if (living.isAlive() && living.isAddedToLevel()) {
       setupBossPersistentData(living, config, chunkX, chunkZ);
@@ -55,8 +49,6 @@ function spawnMountedBoss(server: $ServerLevel, config: IMiniBoss, x: number, y:
       applyBossEffects(living, config);
       finalizeSpawn(server, x, y, z, chunkX, chunkZ);
       registerActiveBoss(living, config, spawnDay, server.getServer());
-
-      console.log(`[MULTI-BOSS] Boss ${config.name} montado com SUCESSO. Boss: ${living.uuid} em cima de ${mount.uuid}`);
     }
   });
 }
@@ -84,8 +76,6 @@ function spawnStandardBoss(server: $ServerLevel, config: IMiniBoss, x: number, y
       applyBossEffects(living, config);
       finalizeSpawn(server, x, y, z, chunkX, chunkZ);
       registerActiveBoss(living, config, spawnDay, server.getServer());
-
-      console.log(`[MULTI-BOSS] Boss ${config.name} spawnado com UUID: ${living.uuid}`);
     }
   });
 }
@@ -95,6 +85,18 @@ function createMountEntity(server: $ServerLevel, mountConfig: MountConfig, x: nu
   if (!mount) {
     console.log(`[MULTI-BOSS] Falha ao criar mount: ${mountConfig.id}`);
     return null;
+  }
+
+  let mountLiving = asLiving(mount);
+  mountLiving.setHealth(mountConfig.health);
+  if (mountLiving && mountConfig.statusBase) {
+    let e = mountConfig.statusBase;
+    mountLiving.getAttribute("minecraft:generic.max_health")?.setBaseValue(mountConfig.health || 20);
+    mountLiving.health = mountConfig.health;
+    mountLiving.getAttribute("minecraft:generic.attack_damage")?.setBaseValue(e.attack || 2);
+    mountLiving.getAttribute("minecraft:generic.armor")?.setBaseValue(e.armor || 0);
+    mountLiving.getAttribute("minecraft:generic.armor_toughness")?.setBaseValue(e.armorToughness || 0);
+    mountLiving.getAttribute("minecraft:generic.movement_speed")?.setBaseValue(e.speed || 0.25);
   }
 
   mount.nbt.putByte("PersistenceRequired", 1);

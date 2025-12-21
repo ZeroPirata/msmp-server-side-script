@@ -8,24 +8,17 @@ EntityEvents.death((event) => {
 
   let bossUUID = entity.uuid.toString();
   let bossUuidFormated = bossUUID.split("-").join("").toLowerCase();
-  console.log(`[MULTI-BOSS DEATH] Boss morreu com UUID: ${bossUUID}`);
-  console.log(`[MULTI-BOSS DEATH] UUID formatado: ${bossUuidFormated}`);
 
   let bossData = activeBosses[bossUuidFormated];
 
   if (!bossData) {
-    console.log(`[MULTI-BOSS DEATH] Boss não encontrado nos ativos. Tentando recuperar config...`);
     let bossType = pd.getString("boss_type");
     let possibleConfig = MINIBOSSES.find((b) => b.classe === bossType);
     if (!possibleConfig) {
-      console.log(`[MULTI-BOSS DEATH] ERRO: Não foi possível recuperar config do boss tipo: ${bossType}`);
-      console.log(`[MULTI-BOSS DEATH] Boss UUID: ${bossUUID}`);
-      console.log(`[MULTI-BOSS DEATH] Bosses ativos: ${Object.keys(activeBosses).length}`);
       let bossKeys = Object.keys(activeBosses);
       for (let i = 0; i < bossKeys.length; i++) {
         let uuid = bossKeys[i];
         let data = activeBosses[uuid];
-        console.log(`[MULTI-BOSS DEATH]   - ${uuid}: ${data.config.name}`);
       }
       return;
     }
@@ -61,7 +54,6 @@ EntityEvents.death((event) => {
     if (missingDamage > 0) {
       let currentDamage = bossTracker[playerUUID] || 0;
       bossTracker[playerUUID] = currentDamage + missingDamage;
-      console.log(`[MULTI-BOSS DEATH] Adicionando ${missingDamage} de dano final para ${source.username}`);
     }
   }
 
@@ -162,8 +154,6 @@ EntityEvents.death((event) => {
             }
           });
         }
-
-        console.log(`[MULTI-BOSS DEATH] Recompensas distribuídas para ${activePlayers.length} players`);
       });
     }
   }

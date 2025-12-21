@@ -48,7 +48,6 @@ ServerEvents.tick((e) => {
 
   if (!isNight) {
     if (currentNightState && currentNightState.day < currentDay) {
-      console.log(`[MULTI-BOSS] Novo dia amanheceu. Resetando estado da noite.`);
       currentNightState = null;
       server.persistentData.remove("kubejs_night_state");
     }
@@ -59,11 +58,9 @@ ServerEvents.tick((e) => {
     let loaded = loadNightState(server);
     if (loaded && loaded.day === currentDay) {
       currentNightState = loaded;
-      console.log(`[MULTI-BOSS] Estado da noite carregado: Dia ${currentDay}, Spawnados: ${currentNightState.spawnedCount}`);
     } else {
       currentNightState = initNightState(currentDay);
       saveNightState(server, currentNightState);
-      console.log(`[MULTI-BOSS] Nova noite iniciada: Dia ${currentDay}`);
     }
   }
 

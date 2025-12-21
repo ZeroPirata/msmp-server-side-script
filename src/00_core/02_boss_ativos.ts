@@ -13,7 +13,6 @@ function registerActiveBoss(boss: $LivingEntity, config: IMiniBoss, spawnDay: nu
   activeBosses[bossUuidFormated] = bossData;
   bossActivationCheckTimers[bossUuidFormated] = 0;
   createBossBarForBoss(server, uuid, `${config.name} - Aguardando...`, "PURPLE", "PROGRESS");
-  console.log(`[MULTI-BOSS] Boss registrado: ${config.name} (${uuid})`);
 }
 
 function unregisterActiveBoss(server: $MinecraftServer, bossUuid: string): void {

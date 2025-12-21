@@ -35,9 +35,6 @@ BlockEvents.rightClicked((event) => {
   }
 
   if (!server.persistentData.contains(playerKey)) {
-    if (isRegisteredChest && hasPermission) {
-      console.log(`[MSMP] ${player.name.getString()} abriu seu baú (Sem Recompensas)`);
-    }
     return;
   }
 

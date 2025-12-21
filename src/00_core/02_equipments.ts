@@ -15,7 +15,6 @@ function applyEquipmentToBoss(boss: $LivingEntity, equipment: IEquipment): void 
         if (roll <= ench.chance) {
           let level = randomBetween(ench.minLevel, ench.maxLevel);
           finalEnchantments[ench.id] = level;
-          console.log(`[EQUIPMENT] Encantamento aleatório: ${ench.id} ${level}`);
         }
       });
     }

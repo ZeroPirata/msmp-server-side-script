@@ -70,4 +70,10 @@ interface MountConfig {
   id: string;
   name?: string;
   health?: number;
+  statusBase?: {
+    attack?: number;
+    armor?: number;
+    armorToughness?: number;
+    speed?: number;
+  };
 }

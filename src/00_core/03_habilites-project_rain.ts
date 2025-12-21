@@ -168,10 +168,6 @@ function cleanupOldProjectiles(level: $ServerLevel, boss: $LivingEntity, project
       cleaned++;
     }
   });
-
-  if (cleaned > 0) {
-    console.log(`[PROJECTILE RAIN] Limpou ${cleaned} projéteis antigos`);
-  }
 }
 
 function updateProjectileRainWarnings(boss: $LivingEntity, phase: IBossPhase, level: $ServerLevel, phaseIndex: number, currentTick: number): void {
