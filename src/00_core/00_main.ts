@@ -2,7 +2,7 @@ console.log("[MSMP] Carregando core principais...");
 
 // Server
 let VIDEO_TAG = "msmp_player_watched_video";
-let VIDEO_URL = "https://www.youtube.com/watch?v=9E15RZINDFI";
+let VIDEO_URL = "https://www.youtube.com/watch?v=flXJh_1wJ0M";
 
 // Commands
 let CONFIG_KEY = "msmp_configs";
@@ -18,20 +18,29 @@ let DEFAULT_CONFIG = {
   MIN_BOSS_DISTANCE: 200
 };
 
+// Reset for Ticks
+let RESET_TICKS = 20 * 60 * 30;
+let cachedMsmpConfig = null;
+let lastConfigReload = 0;
+
+// Ritual Constants
+let RITUAL_HEIGHT = 4; // 4 blocos acima
+let HEAL_PER_SECOND = 5; // 0.25 HP/tick × 20 = 5 HP/seg
+let BEAM_UPDATE_TICKS = 5; // Faixes a cada 0.25 seg
+let RITUAL_PARTICLE_TICKS = 10; // Partículas a cada 0.5 seg
+
 // boss management
 let bossChunkPositions: { x: number; z: number }[] = [];
 let bossActivationCheckTimer = 0;
-let pendingBossSpawn: {
-  config: IMiniBoss;
-  x: number;
-  y: number;
-  z: number;
-  activationRange: number;
-} | null = null;
-
+let pendingBossSpawn: { config: IMiniBoss; x: number; y: number; z: number; activationRange: number } | null = null;
 let activeBossBar: $CustomBossEvent | null = null;
 let damageAccumulator: { [bossUUID: string]: { [playerUUID: string]: number } } = {};
 let TAG_LAST_DAY = "msmp_last_boss_spawn_day";
+// Estado dos bosses e night spawns
+let activeBosses = {};
+let pendingBosses: Array<PendingBossData> = [];
+let currentNightState: NightSpawnState | null = null;
+let bossActivationCheckTimers = {};
 
 // Minecraft Classes
 let Entity = Java.loadClass("net.minecraft.world.entity.Entity");
@@ -53,15 +62,4 @@ let MeleeAttackGoal = Java.loadClass("net.minecraft.world.entity.ai.goal.MeleeAt
 let RangedBowAttackGoal = Java.loadClass("net.minecraft.world.entity.ai.goal.RangedBowAttackGoal");
 let Player = Java.loadClass("net.minecraft.world.entity.player.Player");
 let HeightmapTypes = Java.loadClass("net.minecraft.world.level.levelgen.Heightmap$Types");
-
-// Ritual Constants
-let RITUAL_HEIGHT = 4; // 4 blocos acima
-let HEAL_PER_SECOND = 5; // 0.25 HP/tick × 20 = 5 HP/seg
-let BEAM_UPDATE_TICKS = 5; // Faixes a cada 0.25 seg
-let RITUAL_PARTICLE_TICKS = 10; // Partículas a cada 0.5 seg
-
-//
-let activeBosses = {};
-let pendingBosses: Array<PendingBossData> = [];
-let currentNightState: NightSpawnState | null = null;
-let bossActivationCheckTimers = {};
+let LightLayer = Java.loadClass("net.minecraft.world.level.LightLayer");

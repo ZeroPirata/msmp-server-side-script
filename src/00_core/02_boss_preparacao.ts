@@ -1,22 +1,28 @@
-function prepareBossSpawnMulti(server: $ServerLevel, bossConfig: IMiniBoss, x: number, y: number, z: number, spawnDay: number): void {
-  let spawnPos = new BlockPos(x, y, z);
-  forceLoadBossChunk(server, spawnPos);
+import { $ServerLevel } from "net.minecraft.server.level.ServerLevel";
+import { $BlockPos } from "net.minecraft.core.BlockPos";
+import { $MinecraftServer } from "net.minecraft.server.MinecraftServer";
 
+function prepareBossSpawnMulti(server: $MinecraftServer, level: $ServerLevel, bossConfig: IMiniBoss, pos: $BlockPos, spawnDay: number): void {
+  forceLoadBossChunk(level, pos);
   let pendingBoss: PendingBossData = {
     config: bossConfig,
-    x: x,
-    y: y,
-    z: z,
+    x: pos.getX(),
+    y: pos.getY(),
+    z: pos.getZ(),
     activationRange: 64.0,
     spawnDay: spawnDay
   };
 
   pendingBosses.push(pendingBoss);
 
-  server.runCommandSilent(`tellraw @a "§6§l§m--------------------------------"`);
-  server.runCommandSilent(`tellraw @a "§c§l💥 ALERTA DE INVASÃO IMINENTE! 💥"`);
-  server.runCommandSilent(`tellraw @a "§6LOCALIZAÇÃO: X:§a${Math.floor(x)}§6 | Y:§a${Math.floor(y)}§6 | Z:§a${Math.floor(z)}"`);
-  server.runCommandSilent(`tellraw @a "§6§l§m--------------------------------"`);
+  let x = Math.floor(pos.getX());
+  let y = Math.floor(pos.getY());
+  let z = Math.floor(pos.getZ());
+
+  server.players.tell(Component.gold("§l--------------------------------"));
+  server.players.tell(Component.red("§l💥 ALERTA DE INVASÃO IMINENTE! 💥"));
+  server.players.tell([Component.gold("LOCALIZAÇÃO: "), Component.green(`X: ${x} | Y: ${y} | Z: ${z}`)]);
+  server.players.tell(Component.gold("§l--------------------------------"));
 }
 
 function checkPendingBosses(server: $ServerLevel): void {

@@ -1,57 +1,50 @@
 import { $MinecraftServer } from "net.minecraft.server.MinecraftServer";
+import { $LivingEntity } from "net.minecraft.world.entity.LivingEntity";
 
 ServerEvents.tick((e) => {
   let server = e.server;
-  let overworld = server.overworld();
-  let msmpConfig = getMsmpConfig(server);
-  if (!msmpConfig) return;
 
-  let currentDay = Math.floor(overworld.getDayTime() / 24000);
-  let isNight = overworld.isNight();
+  if (!cachedMsmpConfig || server.tickCount - lastConfigReload > 1200) {
+    cachedMsmpConfig = getMsmpConfig(server);
+    lastConfigReload = server.tickCount;
+  }
 
-  // Processa bosses ativos
-  let bossKeys = Object.keys(activeBosses);
-  for (let i = 0; i < bossKeys.length; i++) {
-    let formattedUuid = bossKeys[i];
+  if (!cachedMsmpConfig) return;
+
+  for (let formattedUuid in activeBosses) {
     let bossData = activeBosses[formattedUuid];
-    if (!bossData) continue;
-
     let boss = findBossByUuid(server, bossData.uuid);
 
-    if (boss && boss.isAlive() && boss.isAddedToLevel()) {
-      // Gerencia fases e habilidades
-      bossPhases(boss, bossData.config, server, bossData.uuid);
-
-      // Verifica ativação
-      let timer = bossActivationCheckTimers[formattedUuid] || 0;
-      timer++;
-      bossActivationCheckTimers[formattedUuid] = timer;
-
-      if (timer >= 20) {
-        bossActivationCheckTimers[formattedUuid] = 0;
-        checkBossActivation(server, boss);
+    if (boss) {
+      if (boss.isAlive() && boss.isAddedToLevel()) {
+        bossPhases(boss, bossData.config, server, bossData.uuid);
+      } else if (!boss.isAlive()) {
+        removeBossChunkForceLoad(boss.level, bossData.uuid);
+        unregisterActiveBoss(server, bossData.uuid);
       }
-    } else if (boss && !boss.isAlive()) {
-      // Boss morreu
-      removeBossChunkForceLoad(boss.level, bossData.uuid);
-      unregisterActiveBoss(server, bossData.uuid);
     } else {
-      // Boss não encontrado (pode ter sido removido ou descarregado)
-      unregisterActiveBoss(server, bossData.uuid);
+      console.log(`[MSMP] Boss ${bossData.uuid} está fora de alcance, aguardando...`);
     }
-  } // <-- O fechamento do FOR era aqui
+  }
+  // --- FIM DA ALTERAÇÃO ---
 
-  // Processa bosses pendentes (SEMPRE)
+  // O resto do código permanece idêntico
+  if (server.tickCount % 100 !== 0) return;
+
+  let overworld = server.overworld();
   if (pendingBosses.length > 0) {
     checkPendingBosses(overworld);
   }
+
+  let currentDay = Math.floor(overworld.getDayTime() / 24000);
+  let isNight = overworld.isNight();
 
   if (!isNight) {
     if (currentNightState && currentNightState.day < currentDay) {
       currentNightState = null;
       server.persistentData.remove("kubejs_night_state");
     }
-    return; // Agora este return é válido porque está dentro do tick
+    return;
   }
 
   if (!currentNightState || currentNightState.day < currentDay) {
@@ -64,18 +57,15 @@ ServerEvents.tick((e) => {
     }
   }
 
-  if (currentNightState.spawnedCount >= msmpConfig.MAX_BOSS_NIGHT) return;
-  if (currentNightState.attemptCount >= msmpConfig.MAX_SPAWN_ATTEMPTS) return;
-  if (currentDay < msmpConfig.MIN_DAY) return;
+  if (currentNightState.spawnedCount >= cachedMsmpConfig.MAX_BOSS_NIGHT) return;
+  if (currentNightState.attemptCount >= cachedMsmpConfig.MAX_SPAWN_ATTEMPTS) return;
+  if (currentDay < cachedMsmpConfig.MIN_DAY) return;
 
-  // Roll de chance
   let roll = randomBetween(1, 100);
-  if (roll > msmpConfig.CHANCE_PERCENT) return;
+  if (roll > cachedMsmpConfig.CHANCE_PERCENT) return;
 
-  // Incrementa tentativa
   currentNightState.attemptCount++;
   saveNightState(server, currentNightState);
 
-  // Tenta spawnar um novo boss
-  attemptBossSpawn(server, overworld, currentNightState, msmpConfig, currentDay);
+  attemptBossSpawn(server, overworld, currentNightState, cachedMsmpConfig, currentDay);
 });

@@ -6,38 +6,43 @@ import { $MinecraftServer } from "net.minecraft.server.MinecraftServer";
 import { $Level } from "net.minecraft.world.level.Level";
 import { $ChunkPos } from "net.minecraft.world.level.ChunkPos";
 
-console.log("[MSMP] Carregando core de chuncks...");
+// Variável global para controle (opcional, mas bom para debug)
+let bossChunkPositions = [];
 
-function forceLoadBossChunk(level: $ServerLevel, pos: BlockPos) {
-  let centerChunkX = Math.floor(pos.x / 16);
-  let centerChunkZ = Math.floor(pos.z / 16);
-  let radius = 1;
-  bossChunkPositions = [];
-  for (let x = -radius; x <= radius; x++) {
-    for (let z = -radius; z <= radius; z++) {
-      let chunkX = centerChunkX + x;
-      let chunkZ = centerChunkZ + z;
-      level.setChunkForced(chunkX, chunkZ, true);
-      bossChunkPositions.push({ x: chunkX, z: chunkZ });
+function forceLoadBossChunk(level: $ServerLevel, pos: $BlockPos) {
+  if (!level) return;
+  let server = level.getServer();
+  if (!server) return;
+
+  let cx = pos.x >> 4;
+  let cz = pos.z >> 4;
+
+  for (let x = -1; x <= 1; x++) {
+    for (let z = -1; z <= 1; z++) {
+      server.runCommandSilent(`forceload add ${(cx + x) * 16} ${(cz + z) * 16}`);
     }
   }
 }
 
 function removeBossChunkForceLoad(level: $ServerLevel, bossUuid: string): void {
-  if (!bossUuid) {
-    console.log("[MULTI-BOSS] removeBossChunkForceLoad: bossUuid está undefined");
-    return;
-  }
+  if (!bossUuid) return;
 
-  let bossUuidFormated = bossUuid.split("-").join("").toLowerCase();
-  let bossData = activeBosses[bossUuidFormated];
-  if (!bossData) return;
-
+  // Buscamos o boss para ler as coordenadas salvas no NBT dele
   let boss = findBossByUuid(level.server, bossUuid);
   if (!boss) return;
 
   let chunkX = boss.persistentData.getInt("kubejs_bossChunkX");
   let chunkZ = boss.persistentData.getInt("kubejs_bossChunkZ");
 
-  level.setChunkForced(chunkX, chunkZ, false);
+  // Se as coordenadas forem 0,0 (padrão se não existir), pode ser erro,
+  // então verificamos se realmente foi salvo algo
+  if (chunkX === 0 && chunkZ === 0) return;
+
+  let radius = 1;
+  for (let x = -radius; x <= radius; x++) {
+    for (let z = -radius; z <= radius; z++) {
+      level.server.runCommandSilent(`forceload remove ${(chunkX + x) * 16} ${(chunkZ + z) * 16}`);
+    }
+  }
+  console.log(`[CHUNKS] Área de boss ${bossUuid} liberada.`);
 }

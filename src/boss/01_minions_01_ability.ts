@@ -1,23 +1,32 @@
 import { $PathfinderMob } from "net.minecraft.world.entity.PathfinderMob";
+import { $LivingEntity } from "net.minecraft.world.entity.LivingEntity";
+
+let activeMinions = [];
 
 ServerEvents.tick((event) => {
-  let level = event.server.overworld();
   let currentTick = event.server.getTickCount();
-  if (currentTick % 5 !== 0) return;
-  level.getEntities().forEach((entity) => {
-    if (!entity.isLiving()) return;
-    let living = entity as $LivingEntity;
-    let pd = living.persistentData;
-    if (!pd.getBoolean("kubejs_personalized_minion")) return;
-    let abilitiesRaw = pd.getString("kubejs_minion_abilities");
-    if (!abilitiesRaw) return;
-    let abilities: IMinionAbility[] = JSON.parse(abilitiesRaw);
-    abilities.forEach((ability, index) => {
-      let abilityKey = `kubejs_minion_ability_${index}_lastTick`;
+  if (currentTick % 10 !== 0) return;
+
+  for (let i = activeMinions.length - 1; i >= 0; i--) {
+    let minionData = activeMinions[i];
+    let minion: $LivingEntity = minionData.entity;
+
+    if (!minion || !minion.isAlive() || !minion.isAddedToLevel()) {
+      activeMinions.splice(i, 1);
+      continue;
+    }
+
+    let pd = minion.persistentData;
+    let abilities = minionData.abilities;
+
+    for (let j = 0; j < abilities.length; j++) {
+      let ability = abilities[j];
+      let abilityKey = `minion_lastTick_${j}`;
       let lastTick = pd.getInt(abilityKey) || 0;
-      if (currentTick - lastTick < ability.config.intervalTicks) return;
-      executeMinionAbility(living, ability, level, currentTick);
-      pd.putInt(abilityKey, currentTick);
-    });
-  });
+      if (currentTick - lastTick >= ability.config.intervalTicks) {
+        executeMinionAbility(minion, ability, event.getServer().overworld(), currentTick);
+        pd.putInt(abilityKey, currentTick);
+      }
+    }
+  }
 });

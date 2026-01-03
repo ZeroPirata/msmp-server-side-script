@@ -1,10 +1,11 @@
+import { $MinecraftServer } from "net.minecraft.server.MinecraftServer";
+import { $LivingEntity } from "net.minecraft.world.entity.LivingEntity";
+
 function findBossByUuid(server: $MinecraftServer, uuid: string): $LivingEntity | null {
   let found: $LivingEntity | null = null;
-  server.overworld().entities.forEach((entity) => {
-    if (entity.uuid.toString() === uuid) {
-      found = entity as $LivingEntity;
-    }
-  });
+  let entity = server.overworld().getEntityByUUID(uuid);
+  if (!entity) return null;
+  found = entity as $LivingEntity;
   return found;
 }
 

@@ -4,6 +4,7 @@ import { $MinecraftServer } from "net.minecraft.server.MinecraftServer";
 import { $Level } from "net.minecraft.world.level.Level";
 import { $ChunkPos } from "net.minecraft.world.level.ChunkPos";
 import { $Registry } from "net.minecraft.core.Registry";
+import { $Entity } from "net.minecraft.world.entity.Entity";
 
 function bossPhases(boss: $LivingEntity, config: IMiniBoss, server: $MinecraftServer, bossUuid: string): void {
   let currentTick = server.getTickCount();
@@ -38,19 +39,20 @@ function bossPhases(boss: $LivingEntity, config: IMiniBoss, server: $MinecraftSe
     }
   }
 
-  updateBossBarForBoss(bossUuid, server, `${config.name} - §7[${percentDisplay}%]`);
+  let finalPhase = config.phases ? config.phases[activePhaseIndex] : null;
+  let barColor = finalPhase?.bossBarColor || "GREEN";
+  let barOverlay = finalPhase?.bossBarOverlay || "PROGRESS";
+  let barName = `${config.name} - §7[${percentDisplay}%]`;
+  updateBossBarForBoss(bossUuid, server, barName, healthPercentage, barColor, barOverlay);
 
-  if (!config.phases) return;
-  let finalPhase = config.phases[activePhaseIndex];
-  updateBossBarForBoss(bossUuid, server, undefined, undefined, finalPhase.bossBarColor || "GREEN", finalPhase.bossBarOverlay || "PROGRESS");
-  executePhaseAbilities(boss, finalPhase || null, server);
+  if (!finalPhase) return;
+  executePhaseAbilities(boss, finalPhase || null, server, activePhaseIndex);
 }
 
 function enterPhase(boss: $LivingEntity, phase: IBossPhase, phaseIndex: number): void {
   if (phaseIndex === undefined) return;
 
   let level = boss.level as $ServerLevel;
-  let bossName = boss.customName?.getString() || "Boss";
 
   if (phase.onEnterMessage) {
     level.runCommandSilent(`tellraw @a[distance=..64] "${phase.onEnterMessage}"`);
@@ -74,18 +76,47 @@ function enterPhase(boss: $LivingEntity, phase: IBossPhase, phaseIndex: number):
   });
 }
 
-function executePhaseAbilities(boss: $LivingEntity, phase: IBossPhase, server: $MinecraftServer): void {
-  if (phase == null) return;
+function executePhaseAbilities(boss: $LivingEntity, phase: IBossPhase, server: $MinecraftServer, phaseIndex: number): void {
   let level = boss.level as $ServerLevel;
   let currentTick = server.getTickCount();
-  let phaseIndex = boss.persistentData.getInt("currentPhase") || 0;
+  let abilities = phase.abilities;
 
-  phase.abilities.forEach((ability, abilityIndex) => {
-    if (ability.type === "crystal_phase" && currentTick % 5 !== 0) {
-      return;
-    }
-    executeAbility(boss, ability, level, false, phaseIndex, abilityIndex, currentTick);
-  });
+  let lightContext = getBossLightContext(boss);
+  let inShadow = isBossInShadow(boss);
+
+  for (let i = 0; i < abilities.length; i++) {
+    let ability = abilities[i];
+    if (ability.type === "crystal_phase" && currentTick % 5 !== 0) continue;
+    if (ability.lightRequirement === "shadow" && !inShadow) return;
+    if (ability.lightRequirement === "sun" && inShadow) return;
+    if (ability.lightRequirement === "night" && level.isDay()) return;
+    executeAbility(boss, ability, level, false, phaseIndex, i, currentTick);
+  }
+}
+
+function isBossInShadow(boss: $LivingEntity): boolean {
+  let level = boss.level as $ServerLevel;
+  let pos = boss.blockPosition();
+  let skyLight = level.getBrightness(LightLayer.SKY, pos);
+  return skyLight < 12;
+}
+
+function getBossLightContext(boss: $LivingEntity): "shadow" | "sun" | "night" {
+  let level = boss.level as $ServerLevel;
+  let pos = boss.blockPosition();
+
+  if (!level.isDay()) {
+    return "night";
+  }
+
+  let skyLight = level.getBrightness(LightLayer.SKY, pos);
+  let canSeeSky = level.canSeeSky(pos);
+
+  if (canSeeSky && skyLight >= 12) {
+    return "sun";
+  } else {
+    return "shadow";
+  }
 }
 
 function executeAbility(boss: $LivingEntity, ability: IPhaseAbility, level: $ServerLevel, isOnEnter: boolean, phaseIndex?: number, abilityIndex?: number, currentTick?: number): void {

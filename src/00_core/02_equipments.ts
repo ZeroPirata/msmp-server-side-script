@@ -1,4 +1,6 @@
 import { $LivingEntity } from "net.minecraft.world.entity.LivingEntity";
+import { $ServerLevel } from "net.minecraft.server.level.ServerLevel";
+import { $BlockPos } from "net.minecraft.core.BlockPos";
 
 function applyEquipmentToBoss(boss: $LivingEntity, equipment: IEquipment): void {
   if (!equipment) return;
@@ -88,16 +90,39 @@ function applyEquipmentToBoss(boss: $LivingEntity, equipment: IEquipment): void 
 }
 
 function spawnMinion(level: $ServerLevel, pos: $BlockPos, config: IMinionConfig): void {
+  let serializedAbilities = config.abilities ? JSON.stringify(config.abilities) : null;
+  let serverTick = level.server.getTickCount();
+
   for (let i = 0; i < config.count; i++) {
-    let angle = ((Math.PI * 2) / config.count) * i;
-    let offsetX = Math.cos(angle) * 3;
-    let offsetZ = Math.sin(angle) * 3;
+    let baseRadius = 4;
+    let radiusVariation = Math.random() * 3; // Adiciona até 3 blocos extras aleatórios
+    let radius = baseRadius + radiusVariation;
+
+    let angle = ((Math.PI * 2) / config.count) * i + Math.random() * 0.5; // Ângulo com leve jitter
+    let offsetX = Math.cos(angle) * radius;
+    let offsetZ = Math.sin(angle) * radius;
+
+    // Calculamos a posição final
+    let spawnX = pos.x + offsetX;
+    let spawnZ = pos.z + offsetZ;
+    let spawnY = level.getHeight(HeightmapTypes.MOTION_BLOCKING_NO_LEAVES, spawnX, spawnZ);
+
     let minion = level.createEntity(config.id);
     if (!minion) continue;
-    minion.setPos(pos.x + offsetX, pos.y, pos.z + offsetZ);
+
+    minion.setPos(spawnX, spawnY, spawnZ);
+
     if (minion.isLiving()) {
-      let living = minion as $LivingEntity;
-      living.persistentData.putString("minion_type", config.classe);
+      level.server.runCommandSilent(`team add msmp_allies`);
+      level.server.runCommandSilent(`team join msmp_allies ${minion.uuid}`);
+      level.server.runCommandSilent(`team modify msmp_allies friendlyFire false`);
+
+      let living = minion as $LivingEntity; // Definida aqui
+      let data = living.persistentData;
+
+      data.putString("minion_type", config.classe);
+
+      // --- Atributos ---
       if (config.attributes) {
         if (config.attributes.health) {
           living.maxHealth = config.attributes.health;
@@ -121,16 +146,25 @@ function spawnMinion(level: $ServerLevel, pos: $BlockPos, config: IMinionConfig)
           living.potionEffects.add(effect.id, effect.duration, effect.amplifier, false, false);
         });
       }
-      if (config.abilities && config.abilities.length > 0) {
-        living.persistentData.putBoolean("kubejs_personalized_minion", true);
-        living.persistentData.putString("kubejs_minion_abilities", JSON.stringify(config.abilities));
-        living.persistentData.putInt("kubejs_minion_lastAbilityTick", level.server.getTickCount());
+      if (serializedAbilities) {
+        data.putBoolean("kubejs_personalized_minion", true);
+        data.putString("kubejs_minion_abilities", serializedAbilities);
+        data.putInt("kubejs_minion_lastAbilityTick", serverTick);
       }
       if (config.name) {
         living.customName = Text.of(config.name);
         living.setCustomNameVisible(true);
       }
+      minion.spawn();
+      if (serializedAbilities) {
+        activeMinions.push({
+          entity: living,
+          abilities: config.abilities
+        });
+      }
+    } else {
+      // Se não for living (ex: um projétil ou armor stand), apenas spawna
+      minion.spawn();
     }
-    minion.spawn();
   }
 }

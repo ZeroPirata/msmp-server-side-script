@@ -1,19 +1,22 @@
 function isPositionTooClose(x: number, z: number, existingPositions: Array<{ x: number; z: number }>, minDistance: number): boolean {
-  for (let pos of existingPositions) {
-    let distSq = Math.pow(pos.x - x, 2) + Math.pow(pos.z - z, 2);
-    if (distSq < minDistance * minDistance) {
-      return true;
-    }
+  const minDistanceSq = minDistance * minDistance;
+  for (let i = 0; i < existingPositions.length; i++) {
+    const pos = existingPositions[i];
+    const dx = pos.x - x;
+    const dz = pos.z - z;
+    const distSq = dx * dx + dz * dz;
+
+    if (distSq < minDistanceSq) return true;
   }
   return false;
 }
 
-function generateBossPosition(overworld: $ServerLevel, existingPositions: Array<{ x: number; z: number }>, minDistance: number, maxAttempts: number): BlockPos | null {
-  maxAttempts = 50;
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    let pos = generateRandomPositionBoss(overworld);
+function generateBossPosition(overworld: $ServerLevel, existingPositions: Array<{ x: number; z: number }>, config: any): BlockPos | null {
+  let maxAttempts = 50;
 
-    if (!isPositionTooClose(pos.getX(), pos.getZ(), existingPositions, minDistance)) {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    let pos = generateRandomPositionBoss(overworld, config);
+    if (pos && !isPositionTooClose(pos.getX(), pos.getZ(), existingPositions, config.MIN_BOSS_DISTANCE)) {
       return pos;
     }
   }

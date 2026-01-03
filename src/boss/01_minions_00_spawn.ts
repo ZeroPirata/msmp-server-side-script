@@ -1,3 +1,5 @@
+import { $PathfinderMob } from "net.minecraft.world.entity.PathfinderMob";
+
 EntityEvents.spawned((event) => {
   let minion = event.entity;
   if (!minion.persistentData.getBoolean("kubejs_personalized_minion")) return;

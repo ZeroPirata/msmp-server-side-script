@@ -1,23 +1,33 @@
 {
   "compilerOptions": {
-    // MUITO IMPORTANTE: Garante compatibilidade moderna, que o GraalVM/Rhino entende
-    "target": "es2018",
+    /* --- Configurações de Compilação e Linguagem --- */
+    "target": "es2018", // Otimizado para Rhino moderno
+    "module": "node16", // Evita geração de código "exports" do CommonJS que quebra o KubeJS
+    "moduleResolution": "node16",
+    "lib": ["es2018", "dom"], // "dom" às vezes ajuda com timers (setTimeout), mas es2018 é o principal
 
-    // Essencial para usar `require()` (CommonJS) ou manter o escopo global em scripts KubeJS
-    // O KubeJS geralmente funciona melhor com "commonjs" ou "none" para scripts de evento.
-    "module": "commonjs",
-
-    // Usa bibliotecas mais recentes, essenciais para `Promise`, `Map`, etc.
-    "lib": ["es2018"],
-
+    /* --- Comportamento --- */
     "strict": true,
+    "noImplicitAny": false, // KubeJS as vezes tem tipos dinâmicos, 'false' pode poupar dor de cabeça
+    "allowJs": true,
+    "checkJs": false,
     "skipLibCheck": true,
+
+    /* --- Saída --- */
+    // AVISO: Se você tiver scripts de STARTUP, mude isso ou mova os arquivos manualmente
     "outDir": "../server_scripts",
     "rootDir": "./src",
+    "removeComments": true, // Deixa o arquivo final mais limpo para o Rhino ler
 
-    // As configurações de typeRoots estão corretas para o ambiente KubeJS
-    "typeRoots": ["../../.probe/server", "../../.probe/client", "../../.probe/startup", "../../.probe/packages"]
+    /* --- Integração com ProbeJS (Vital) --- */
+    // Garante que o VS Code olhe para os dumps gerados pelo ProbeJS
+    "typeRoots": ["./node_modules/@types", "../../.probe/server", "../../.probe/client", "../../.probe/startup", "../../.probe/packages"]
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "../../.probe/server", "../../.probe/client", "../../.probe/startup", "../../.probe/packages"]
+  "exclude": [
+    "node_modules",
+    "../../.probe/server", // Excluímos da compilação, mantemos apenas no typeRoots
+    "../../.probe/client",
+    "../../.probe/startup"
+  ]
 }

@@ -30,6 +30,7 @@ interface ICrystalConfig {
 interface IPhaseAbility {
   type: PhaseAbilityType;
   config?: any;
+  lightRequirement?: "shadow" | "sun" | "night";
 }
 
 interface ICrystalPhaseAbility extends IPhaseAbility {

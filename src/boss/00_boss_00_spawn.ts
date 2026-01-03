@@ -1,3 +1,5 @@
+import { $PathfinderMob } from "net.minecraft.world.entity.PathfinderMob";
+
 EntityEvents.spawned((event) => {
   let entity = event.entity;
   let pd = entity.persistentData;
@@ -15,8 +17,17 @@ EntityEvents.spawned((event) => {
     }
   }
 
+  pathfinderMob.targetSelector.getAvailableGoals().clear();
+
   // Prioridade 1: Alvo (Sempre ataca o Jogador mais próximo)
-  pathfinderMob.targetSelector.addGoal(1, new NearestAttackableTargetGoal(pathfinderMob, Player, false));
+  pathfinderMob.targetSelector.addGoal(
+    1,
+    new NearestAttackableTargetGoal(pathfinderMob, Player, 10, true, false, (target) => {
+      let isAlly =
+        target.persistentData.getBoolean("kubejs_personalized_minion") || target.persistentData.getBoolean("kubejs_personalized_boss") || target.persistentData.getBoolean("kubejs_boss_mount");
+      return !isAlly;
+    })
+  );
 
   switch (bossType) {
     case "mage_summoner":
@@ -146,5 +157,15 @@ EntityEvents.spawned((event) => {
       pathfinderMob.goalSelector.addGoal(2, new LookAtPlayerGoal(pathfinderMob, Player, 10.0));
       pathfinderMob.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(pathfinderMob, 0.8));
       break;
+  }
+});
+
+EntityEvents.drops((event) => {
+  let entity = event.entity;
+  let pd = entity.persistentData;
+
+  if (pd.contains("kubejs_customDrops")) {
+    console.log(`[BOSS DROPS] Removendo ${event.drops.size()} drops de ${entity.name.getString()}`);
+    event.drops.clear();
   }
 });

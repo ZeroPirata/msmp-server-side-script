@@ -210,7 +210,7 @@ let SKELETON: { [key: string]: IMinionConfig } = {
       head: { id: "minecraft:chainmail_helmet[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" },
       chest: { id: "minecraft:chainmail_chestplate[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" },
       legs: { id: "minecraft:chainmail_leggings[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" },
-      feet: { id: "minecraft:chainmail_boots[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:copper', pattern='minecraft:sentry'}]" }
+      feet: { id: "minecraft:chainmail_boots[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" }
     }
   },
 

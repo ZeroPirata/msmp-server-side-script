@@ -1,4 +1,5 @@
 import { $ServerLevel } from "net.minecraft.server.level.ServerLevel";
+import { $Entity } from "net.minecraft.world.entity.Entity";
 
 function spawnBossAtPositionMulti(server: $ServerLevel, pendingBoss: PendingBossData): void {
   let config = pendingBoss.config;
@@ -67,6 +68,10 @@ function spawnStandardBoss(server: $ServerLevel, config: IMiniBoss, x: number, y
     return;
   }
 
+  server.server.runCommandSilent(`team add msmp_allies`);
+  server.server.runCommandSilent(`team join msmp_allies ${living.uuid}`);
+  server.server.runCommandSilent(`team modify msmp_allies friendlyFire false`);
+
   basicStatusEnemys(living, config);
   boss.spawn();
 
@@ -119,6 +124,7 @@ function buildBossNBT(config: IMiniBoss): any {
     CustomNameVisible: true,
     DeathLootTable: "minecraft:empty",
     PersistenceRequired: 1,
+    ImmuneToSunlight: 1,
     NoAI: true,
     Attributes: [
       { Name: "minecraft:generic.max_health", Base: config.health },
@@ -165,8 +171,10 @@ function applyBossEffects(boss: $LivingEntity, config: IMiniBoss): void {
 }
 
 function finalizeSpawn(server: $ServerLevel, x: number, y: number, z: number, chunkX: number, chunkZ: number): void {
-  server.setChunkForced(chunkX, chunkZ, true);
-  server.runCommandSilent(`particle minecraft:explosion_emitter ${x} ${y + 1} ${z} 1 1 1 0.5 10 force`);
-  server.runCommandSilent(`particle minecraft:soul_fire_flame ${x} ${y} ${z} 2 2 2 0.1 100 force`);
-  server.runCommandSilent(`playsound minecraft:entity.wither.spawn hostile @a ${x} ${y} ${z} 3 0.8`);
+  let minecraftServer = server.getServer();
+  minecraftServer.runCommandSilent(`forceload add ${chunkX * 16} ${chunkZ * 16}`);
+  minecraftServer.runCommandSilent(`particle minecraft:explosion_emitter ${x} ${y + 1} ${z} 1 1 1 0.5 10 force`);
+  minecraftServer.runCommandSilent(`particle minecraft:soul_fire_flame ${x} ${y} ${z} 2 2 2 0.1 100 force`);
+  minecraftServer.runCommandSilent(`playsound minecraft:entity.wither.spawn hostile @a ${x} ${y} ${z} 3 0.8`);
+  // console.log(`[MSMP] Boss finalizado na chunk ${chunkX}, ${chunkZ}`);
 }

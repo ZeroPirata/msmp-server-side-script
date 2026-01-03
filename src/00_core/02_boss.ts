@@ -20,27 +20,27 @@ function getSafeSpawnPos(level: $ServerLevel, x: number, z: number, spawnY: numb
   let maxY = spawnY + 15;
   if (surfaceY > maxY) {
     surfaceY = maxY;
+    let tempPos = new BlockPos(x, surfaceY, z);
     while (surfaceY > level.getMinBuildHeight()) {
-      let blockBelow = level.getBlockState(new BlockPos(x, surfaceY - 1, z));
+      let blockBelow = level.getBlockState(tempPos.below());
       if (blockBelow.isSolid()) break;
       surfaceY--;
+      tempPos = tempPos.below();
     }
   }
 
   return new BlockPos(x, surfaceY, z);
 }
 
-function generateRandomPositionBoss(server: $ServerLevel) {
-  let msmpConfig = getMsmpConfig(server.getServer());
-  if (msmpConfig === null) return;
-  let spawn = server.getSharedSpawnPos();
+function generateRandomPositionBoss(level: $ServerLevel, msmpConfig: any) {
+  if (!msmpConfig) return null;
+  let spawn = level.getSharedSpawnPos();
   let angle = Math.random() * 2 * Math.PI;
   let distanceOffset = randomBetween(msmpConfig.MIN_DISTANCE, msmpConfig.MAX_DISTANCE);
   let distance = msmpConfig.SPAWN_SAFE_RADIUS + distanceOffset;
   let x = Math.floor(spawn.x + distance * Math.cos(angle));
   let z = Math.floor(spawn.z + distance * Math.sin(angle));
-  let pos = getSafeSpawnPos(server, x, z, spawn.y);
-  return pos;
+  return getSafeSpawnPos(level, x, z, spawn.y);
 }
 
 function activateBoss(boss: $LivingEntity, player: $ServerPlayer, level: $ServerLevel) {

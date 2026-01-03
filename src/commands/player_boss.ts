@@ -249,7 +249,7 @@ ServerEvents.commandRegistry((event) => {
               let bossConfig = availableBosses[Math.floor(Math.random() * availableBosses.length)];
 
               // Gera posição
-              let pos = generateBossPosition(overworld, currentNightState.spawnedPositions, config.MIN_BOSS_DISTANCE);
+              let pos = generateBossPosition(overworld, currentNightState.spawnedPositions, config);
 
               if (!pos) {
                 source.sendFailure(Component.literal("§c❌ Não foi possível encontrar posição válida."));
@@ -264,7 +264,7 @@ ServerEvents.commandRegistry((event) => {
               saveNightState(server, currentNightState);
 
               // Spawna boss
-              prepareBossSpawnMulti(overworld, bossConfig, pos.getX(), pos.getY(), pos.getZ(), currentDay);
+              prepareBossSpawnMulti(overworld.server, overworld, bossConfig, pos, currentDay);
 
               let diffColor = getDifficultyColor(difficulty);
               source.sendSuccess(Component.literal(`§a✅ Boss forçado com sucesso!`).bold(), true);

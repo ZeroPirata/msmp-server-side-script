@@ -47,7 +47,7 @@ let BOSS_1: IMiniBoss = {
       }
     },
     feet: {
-      id: " chainmail_boots[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
+      id: "chainmail_boots[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
       enchantments: {
         "minecraft:protection": 2
       }
@@ -1047,4 +1047,136 @@ let BOSS_11: IMiniBoss = {
   ]
 };
 
-let MINIBOSSES: IMiniBoss[] = [BOSS_1, BOSS_2, BOSS_3, BOSS_4, BOSS_5, BOSS_6, BOSS_7, BOSS_8, BOSS_9, BOSS_10, BOSS_11];
+let BOSS_12: IMiniBoss = {
+  difficulty: "RAID",
+  id: "born_in_chaos_v1:fallen_chaos_knight",
+  name: "§6§lSoberano do Caos",
+  lootrName: "rare_boss_lootr",
+  spawnWeight: 1,
+  health: 2000,
+  attack: 15,
+  armor: 20,
+  armorToughness: 12,
+  speed: 0.28,
+  classe: "void_walker",
+  equipment: {
+    mainHand: {
+      id: "cataclysm:infernal_forge",
+      enchantments: {
+        guaranteed: { "minecraft:sharpness": 5, "minecraft:fire_aspect": 2 }
+      }
+    },
+    head: { id: "cataclysm:ignitium_helmet" },
+    chest: { id: "cataclysm:ignitium_chestplate" },
+    legs: { id: "cataclysm:ignitium_leggings" },
+    feet: { id: "cataclysm:ignitium_boots" }
+  },
+  phases: [
+    {
+      threshold: 1.0,
+      name: "Chuva de Ferro",
+      bossBarColor: "YELLOW",
+      abilities: [
+        {
+          type: "shoot_projectiles",
+          config: {
+            projectileType: "minecraft:fireball",
+            intervalTicks: 40,
+            count: 3,
+            spread: 0.5,
+            speed: 1.8
+          }
+        },
+        {
+          type: "summon_minions",
+          config: {
+            minions: [
+              {
+                id: "minecraft:skeleton",
+                name: "§7Atirador do Caos",
+                count: 3,
+                classe: "archer",
+                abilities: [
+                  {
+                    type: "shoot_projectile",
+                    config: { projectileType: "minecraft:arrow", intervalTicks: 30, range: 20 }
+                  }
+                ]
+              }
+            ],
+            periodic: { intervalTicks: 600 }
+          }
+        }
+      ]
+    },
+    {
+      threshold: 0.6, // FASE 2: TESTE DE MAGIA E CURA (Irons Spellbooks)
+      name: "Terror Arcano",
+      onEnterMessage: "§6Soberano: 'Sinta o peso das eras!'",
+      bossBarColor: "PURPLE",
+      abilities: [
+        {
+          type: "heal",
+          config: {
+            percentage: 0.2, // Cura 20% ao entrar
+            onEnter: true,
+            periodic: { intervalTicks: 100, amount: 20 }
+          }
+        },
+        {
+          type: "cast_spell",
+          config: {
+            spellId: "cataclysm_spellbooks:void_beam",
+            intervalTicks: 160,
+            targetMode: "nearest_player",
+            requiresLineOfSight: true
+          }
+        },
+        {
+          type: "teleport",
+          config: { intervalTicks: 200, radius: 12, toLowHealthPlayer: true }
+        }
+      ]
+    },
+    {
+      threshold: 0.3, // FASE 3: TESTE DE STRESS TOTAL (AOE + ENRAGE + MINIONS)
+      name: "Colapso Final",
+      onEnterMessage: "§4§lO MUNDO SE CURVA PERANTE O CAOS!",
+      bossBarColor: "RED",
+      bossBarOverlay: "NOTCHED_20",
+      abilities: [
+        {
+          type: "enrage",
+          config: { damageMultiplier: 3.0, speedMultiplier: 1.6, particleEffect: true }
+        },
+        {
+          type: "aoe_damage",
+          config: {
+            radius: 10,
+            damage: 12,
+            intervalTicks: 80,
+            particleEffect: "minecraft:explosion_emitter",
+            knockback: 1.5
+          }
+        },
+        {
+          type: "summon_minions",
+          config: {
+            onEnter: true,
+            minions: [
+              {
+                id: "minecraft:creeper",
+                name: "§2Estilhaço de Caos",
+                count: 5,
+                classe: "bomber",
+                attributes: { speed: 0.4 }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+};
+
+let MINIBOSSES: IMiniBoss[] = [BOSS_1, BOSS_2, BOSS_3, BOSS_4, BOSS_5, BOSS_6, BOSS_7, BOSS_8, BOSS_9, BOSS_10, BOSS_11, BOSS_12];
