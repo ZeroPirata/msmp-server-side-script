@@ -34,25 +34,25 @@ let ZOMBIES: { [key: string]: IMinionConfig } = {
         id: "minecraft:shield"
       },
       head: {
-        id: "minecraft:chainmail_helmet[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
+        id: "minecraft:chainmail_helmet[ trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
         enchantments: {
           possible: [{ id: "minecraft:protection", minLevel: 1, maxLevel: 2, chance: 0.8 }]
         }
       },
       chest: {
-        id: "minecraft:chainmail_chestplate[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
+        id: "minecraft:chainmail_chestplate[ trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
         enchantments: {
           possible: [{ id: "minecraft:protection", minLevel: 1, maxLevel: 2, chance: 0.8 }]
         }
       },
       legs: {
-        id: "minecraft:chainmail_leggings[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
+        id: "minecraft:chainmail_leggings[ trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
         enchantments: {
           possible: [{ id: "minecraft:protection", minLevel: 1, maxLevel: 2, chance: 0.8 }]
         }
       },
       feet: {
-        id: "minecraft:chainmail_boots[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
+        id: "minecraft:chainmail_boots[ trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
         enchantments: {
           possible: [{ id: "minecraft:protection", minLevel: 1, maxLevel: 2, chance: 0.8 }]
         }
@@ -80,25 +80,25 @@ let ZOMBIES: { [key: string]: IMinionConfig } = {
         }
       },
       head: {
-        id: "minecraft:iron_helmet[tiered:tiered_modifier='tiered:armors/fortified', trim={material:'minecraft:lapis', pattern:'minecraft:ward'}]",
+        id: "minecraft:iron_helmet[ trim={material:'minecraft:lapis', pattern:'minecraft:ward'}]",
         enchantments: {
           possible: [{ id: "minecraft:protection", minLevel: 2, maxLevel: 4, chance: 0.8 }]
         }
       },
       chest: {
-        id: "minecraft:iron_chestplate[tiered:tiered_modifier='tiered:armors/fortified', trim={material:'minecraft:lapis', pattern:'minecraft:ward'}]",
+        id: "minecraft:iron_chestplate[ trim={material:'minecraft:lapis', pattern:'minecraft:ward'}]",
         enchantments: {
           possible: [{ id: "minecraft:protection", minLevel: 2, maxLevel: 4, chance: 0.8 }]
         }
       },
       legs: {
-        id: "minecraft:iron_leggings[tiered:tiered_modifier='tiered:armors/fortified', trim={material:'minecraft:lapis', pattern:'minecraft:ward'}]",
+        id: "minecraft:iron_leggings[ trim={material:'minecraft:lapis', pattern:'minecraft:ward'}]",
         enchantments: {
           possible: [{ id: "minecraft:protection", minLevel: 2, maxLevel: 4, chance: 0.8 }]
         }
       },
       feet: {
-        id: "minecraft:iron_boots[tiered:tiered_modifier='tiered:armors/fortified', trim={material:'minecraft:lapis', pattern:'minecraft:ward'}]",
+        id: "minecraft:iron_boots[ trim={material:'minecraft:lapis', pattern:'minecraft:ward'}]",
         enchantments: {
           possible: [{ id: "minecraft:protection", minLevel: 2, maxLevel: 4, chance: 0.8 }]
         }
@@ -129,7 +129,7 @@ let ZOMBIES: { [key: string]: IMinionConfig } = {
         id: "minecraft:shield"
       },
       head: {
-        id: "minecraft:diamond_helmet[tiered:tiered_modifier='tiered:armors/resilient', trim={material:'minecraft:amethyst', pattern:'minecraft:eye'}]",
+        id: "minecraft:diamond_helmet[ trim={material:'minecraft:amethyst', pattern:'minecraft:eye'}]",
         enchantments: {
           guaranteed: {
             "minecraft:protection": 3,
@@ -138,7 +138,7 @@ let ZOMBIES: { [key: string]: IMinionConfig } = {
         }
       },
       chest: {
-        id: "minecraft:diamond_chestplate[tiered:tiered_modifier='tiered:armors/resilient', trim={material:'minecraft:amethyst', pattern:'minecraft:eye'}]",
+        id: "minecraft:diamond_chestplate[ trim={material:'minecraft:amethyst', pattern:'minecraft:eye'}]",
         enchantments: {
           guaranteed: {
             "minecraft:protection": 3,
@@ -147,7 +147,7 @@ let ZOMBIES: { [key: string]: IMinionConfig } = {
         }
       },
       legs: {
-        id: "minecraft:diamond_leggings[tiered:tiered_modifier='tiered:armors/resilient', trim={material:'minecraft:amethyst', pattern:'minecraft:eye'}]",
+        id: "minecraft:diamond_leggings[ trim={material:'minecraft:amethyst', pattern:'minecraft:eye'}]",
         enchantments: {
           guaranteed: {
             "minecraft:protection": 3,
@@ -156,7 +156,7 @@ let ZOMBIES: { [key: string]: IMinionConfig } = {
         }
       },
       feet: {
-        id: "minecraft:diamond_boots[tiered:tiered_modifier='tiered:armors/resilient', trim={material:'minecraft:amethyst', pattern:'minecraft:eye'}]",
+        id: "minecraft:diamond_boots[ trim={material:'minecraft:amethyst', pattern:'minecraft:eye'}]",
         enchantments: {
           guaranteed: {
             "minecraft:protection": 3,
@@ -207,10 +207,10 @@ let SKELETON: { [key: string]: IMinionConfig } = {
           }
         }
       },
-      head: { id: "minecraft:chainmail_helmet[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" },
-      chest: { id: "minecraft:chainmail_chestplate[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" },
-      legs: { id: "minecraft:chainmail_leggings[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" },
-      feet: { id: "minecraft:chainmail_boots[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" }
+      head: { id: "minecraft:chainmail_helmet[ trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" },
+      chest: { id: "minecraft:chainmail_chestplate[ trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" },
+      legs: { id: "minecraft:chainmail_leggings[ trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" },
+      feet: { id: "minecraft:chainmail_boots[ trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" }
     }
   },
 
@@ -240,10 +240,10 @@ let SKELETON: { [key: string]: IMinionConfig } = {
         id: "minecraft:tipped_arrow[potion_contents={potion:'minecraft:slowness'}]",
         count: 64
       },
-      head: { id: "minecraft:iron_helmet[tiered:tiered_modifier='tiered:armors/fortified', trim={material:'minecraft:iron', pattern:'minecraft:shaper'}]" },
-      chest: { id: "minecraft:iron_chestplate[tiered:tiered_modifier='tiered:armors/fortified', trim={material:'minecraft:iron', pattern:'minecraft:shaper'}]" },
-      legs: { id: "minecraft:iron_leggings[tiered:tiered_modifier='tiered:armors/fortified', trim={material:'minecraft:iron', pattern:'minecraft:shaper'}]" },
-      feet: { id: "minecraft:iron_boots[tiered:tiered_modifier='tiered:armors/fortified', trim={material:'minecraft:iron', pattern:'minecraft:shaper'}]" }
+      head: { id: "minecraft:iron_helmet[ trim={material:'minecraft:iron', pattern:'minecraft:shaper'}]" },
+      chest: { id: "minecraft:iron_chestplate[ trim={material:'minecraft:iron', pattern:'minecraft:shaper'}]" },
+      legs: { id: "minecraft:iron_leggings[ trim={material:'minecraft:iron', pattern:'minecraft:shaper'}]" },
+      feet: { id: "minecraft:iron_boots[ trim={material:'minecraft:iron', pattern:'minecraft:shaper'}]" }
     }
   },
 
@@ -276,10 +276,10 @@ let SKELETON: { [key: string]: IMinionConfig } = {
         id: "minecraft:tipped_arrow[potion_contents={potion:'minecraft:strong_slowness', custom_effects:[{id:'minecraft:instant_damage', amplifier:1}]}]",
         count: 64
       },
-      head: { id: "minecraft:diamond_helmet[tiered:tiered_modifier='tiered:armors/resilient', trim={material:'minecraft:emerald', pattern:'minecraft:silence'}]" },
-      chest: { id: "minecraft:diamond_chestplate[tiered:tiered_modifier='tiered:armors/resilient', trim={material:'minecraft:emerald', pattern:'minecraft:silence'}]" },
-      legs: { id: "minecraft:diamond_leggings[tiered:tiered_modifier='tiered:armors/resilient', trim={material:'minecraft:emerald', pattern:'minecraft:silence'}]" },
-      feet: { id: "minecraft:diamond_boots[tiered:tiered_modifier='tiered:armors/resilient', trim={material:'minecraft:emerald', pattern:'minecraft:silence'}]" }
+      head: { id: "minecraft:diamond_helmet[ trim={material:'minecraft:emerald', pattern:'minecraft:silence'}]" },
+      chest: { id: "minecraft:diamond_chestplate[ trim={material:'minecraft:emerald', pattern:'minecraft:silence'}]" },
+      legs: { id: "minecraft:diamond_leggings[ trim={material:'minecraft:emerald', pattern:'minecraft:silence'}]" },
+      feet: { id: "minecraft:diamond_boots[ trim={material:'minecraft:emerald', pattern:'minecraft:silence'}]" }
     }
   }
 };

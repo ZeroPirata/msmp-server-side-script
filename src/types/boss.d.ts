@@ -6,6 +6,7 @@ interface IMiniBoss extends IEnemy {
   immuneTo?: string[]; // Imune a certos danos
   lootMultiplier?: number; // Boss premium dropa 2x mais
   scaling?: IPlayerScaling; // Escala com o número de jogadores
+  bloodMoon?: boolean; // Se pode spawnar na Blood Moon
   classe:
     | "mage_summoner"
     | "battle_mage"
@@ -56,6 +57,7 @@ interface PendingBossData {
   z: number;
   activationRange: number;
   spawnDay: number;
+  isBloodMoonBoss?: boolean;
 }
 
 interface NightSpawnState {
@@ -76,4 +78,25 @@ interface MountConfig {
     armorToughness?: number;
     speed?: number;
   };
+}
+
+interface BloodMoonConfig {
+  ENABLED: boolean;
+  MIN_DAYS: number;
+  MAX_DAYS: number;
+  DURATION_TICKS: number;
+  BOSS_SPAWN_DELAY: number;
+  BOSS_CLASSE: string;
+  ANNOUNCE_START: boolean;
+  ANNOUNCE_END: boolean;
+  SKY_COLOR: boolean;
+}
+
+interface BloodMoonState {
+  nextBloodMoonDay: number;
+  isActive: boolean;
+  startTick: number;
+  bossSpawned: boolean;
+  bossUuid: string | null;
+  bossKilled: boolean;
 }

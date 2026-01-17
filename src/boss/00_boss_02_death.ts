@@ -4,6 +4,24 @@ EntityEvents.death((event) => {
   let server = event.server;
   let pd = entity.persistentData;
 
+  // ============================================
+  // VERIFICAR SE É BOSS DA BLOOD MOON
+  // ============================================
+  if (pd.getBoolean("kubejs_blood_moon_boss")) {
+    let bossUUID = entity.uuid.toString();
+    console.log(`[MSMP Blood Moon] Boss da Blood Moon morto! UUID: ${bossUUID}`);
+
+    // Verificar e marcar como morto no estado da Blood Moon
+    if (currentBloodMoonState && currentBloodMoonState.bossUuid === bossUUID) {
+      if (!currentBloodMoonState.bossKilled) {
+        currentBloodMoonState.bossKilled = true;
+        saveBloodMoonState(server, currentBloodMoonState);
+        announceBloodMoonBossKilled(server);
+        console.log("[MSMP Blood Moon] Boss da Blood Moon confirmado como derrotado!");
+      }
+    }
+  }
+
   if (!pd.contains("kubejs_customDrops")) return;
 
   let bossUUID = entity.uuid.toString();

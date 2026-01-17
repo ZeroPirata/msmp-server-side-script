@@ -161,11 +161,18 @@ EntityEvents.spawned((event) => {
 });
 
 EntityEvents.drops((event) => {
-  let entity = event.entity;
+  let { entity, drops } = event;
   let pd = entity.persistentData;
 
+  let itensProibidos = ["nether_remastered:seal_piece_1", "nether_remastered:seal_piece_2", "nether_remastered:seal_piece_3", "nether_remastered:seal_piece_4"];
+
+  drops.removeIf((drop) => {
+    console.log(`[DROP CHECK] Verificando drop: ${drop.item.id} de ${entity.name.getString()}`);
+    return itensProibidos.includes(drop.item.id);
+  });
+
   if (pd.contains("kubejs_customDrops")) {
-    console.log(`[BOSS DROPS] Removendo ${event.drops.size()} drops de ${entity.name.getString()}`);
-    event.drops.clear();
+    console.log(`[BOSS DROPS] Limpando drops nativos de: ${entity.name.getString()}`);
+    drops.clear();
   }
 });

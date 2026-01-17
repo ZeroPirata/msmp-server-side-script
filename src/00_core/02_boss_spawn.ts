@@ -7,6 +7,7 @@ function spawnBossAtPositionMulti(server: $ServerLevel, pendingBoss: PendingBoss
   let y = pendingBoss.y;
   let z = pendingBoss.z;
   let spawnDay = pendingBoss.spawnDay;
+  let isBloodMoon = pendingBoss.isBloodMoonBoss || false;
   let chunkX = Math.floor(x / 16);
   let chunkZ = Math.floor(z / 16);
 
@@ -17,14 +18,15 @@ function spawnBossAtPositionMulti(server: $ServerLevel, pendingBoss: PendingBoss
 
   server.getServer().scheduleInTicks(5, () => {
     if (config.mount?.name) {
-      spawnMountedBoss(server, config, x, y, z, spawnDay, chunkX, chunkZ);
+      spawnMountedBoss(server, config, x, y, z, spawnDay, chunkX, chunkZ, isBloodMoon);
     } else {
-      spawnStandardBoss(server, config, x, y, z, spawnDay, chunkX, chunkZ);
+      spawnStandardBoss(server, config, x, y, z, spawnDay, chunkX, chunkZ, isBloodMoon);
     }
   });
 }
 
-function spawnMountedBoss(server: $ServerLevel, config: IMiniBoss, x: number, y: number, z: number, spawnDay: number, chunkX: number, chunkZ: number): void {
+function spawnMountedBoss(server: $ServerLevel, config: IMiniBoss, x: number, y: number, z: number, spawnDay: number, chunkX: number, chunkZ: number, isBloodMoon: boolean): void {
+  isBloodMoon = isBloodMoon || false;
   let mount = createMountEntity(server, config.mount, x, y, z);
   if (!mount) return;
 
@@ -50,11 +52,22 @@ function spawnMountedBoss(server: $ServerLevel, config: IMiniBoss, x: number, y:
       applyBossEffects(living, config);
       finalizeSpawn(server, x, y, z, chunkX, chunkZ);
       registerActiveBoss(living, config, spawnDay, server.getServer());
+
+      // Marcar como Blood Moon boss se aplicável
+      if (isBloodMoon) {
+        living.persistentData.putBoolean("kubejs_blood_moon_boss", true);
+        if (currentBloodMoonState) {
+          currentBloodMoonState.bossUuid = living.uuid.toString();
+          saveBloodMoonState(server.getServer(), currentBloodMoonState);
+        }
+        console.log(`[MSMP Blood Moon] Boss montado ativado! UUID: ${living.uuid.toString()}`);
+      }
     }
   });
 }
 
-function spawnStandardBoss(server: $ServerLevel, config: IMiniBoss, x: number, y: number, z: number, spawnDay: number, chunkX: number, chunkZ: number): void {
+function spawnStandardBoss(server: $ServerLevel, config: IMiniBoss, x: number, y: number, z: number, spawnDay: number, chunkX: number, chunkZ: number, isBloodMoon: boolean): void {
+  isBloodMoon = isBloodMoon || false;
   let boss = server.createEntity(config.id as any);
   if (!boss) {
     console.log(`[MULTI-BOSS] Falha ao criar boss: ${config.id}`);
@@ -81,6 +94,15 @@ function spawnStandardBoss(server: $ServerLevel, config: IMiniBoss, x: number, y
       applyBossEffects(living, config);
       finalizeSpawn(server, x, y, z, chunkX, chunkZ);
       registerActiveBoss(living, config, spawnDay, server.getServer());
+
+      if (isBloodMoon) {
+        living.persistentData.putBoolean("kubejs_blood_moon_boss", true);
+        if (currentBloodMoonState) {
+          currentBloodMoonState.bossUuid = living.uuid.toString();
+          saveBloodMoonState(server.getServer(), currentBloodMoonState);
+        }
+        console.log(`[MSMP Blood Moon] Boss ativado! UUID: ${living.uuid.toString()}`);
+      }
     }
   });
 }

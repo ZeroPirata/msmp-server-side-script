@@ -29,25 +29,25 @@ let BOSS_1: IMiniBoss = {
       id: "minecraft:stone_sword"
     },
     head: {
-      id: "chainmail_helmet[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
+      id: "chainmail_helmet[trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
       enchantments: {
         "minecraft:protection": 2
       }
     },
     chest: {
-      id: "chainmail_chestplate[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
+      id: "chainmail_chestplate[ trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
       enchantments: {
         "minecraft:protection": 2
       }
     },
     legs: {
-      id: "chainmail_leggings[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
+      id: "chainmail_leggings[ trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
       enchantments: {
         "minecraft:protection": 2
       }
     },
     feet: {
-      id: "chainmail_boots[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
+      id: "chainmail_boots[ trim={material:'minecraft:redstone', pattern:'minecraft:silence'}]",
       enchantments: {
         "minecraft:protection": 2
       }
@@ -91,7 +91,7 @@ let BOSS_2: IMiniBoss = {
         }
       },
       head: {
-        id: "minecraft:leather_helmet[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:gold', pattern:'minecraft:eye'}, dyed_color={rgb:4673362}]",
+        id: "minecraft:leather_helmet[ trim={material:'minecraft:gold', pattern:'minecraft:eye'}, dyed_color={rgb:4673362}]",
         enchantments: {
           guaranteed: {
             "minecraft:protection": 2
@@ -99,7 +99,7 @@ let BOSS_2: IMiniBoss = {
         }
       },
       chest: {
-        id: "minecraft:leather_chestplate[tiered:tiered_modifier='tiered:armors/resilient', trim={material:'minecraft:gold', pattern:'minecraft:eye'}, dyed_color={rgb:4673362}]",
+        id: "minecraft:leather_chestplate[ trim={material:'minecraft:gold', pattern:'minecraft:eye'}, dyed_color={rgb:4673362}]",
         enchantments: {
           guaranteed: {
             "minecraft:protection": 2
@@ -107,7 +107,7 @@ let BOSS_2: IMiniBoss = {
         }
       },
       legs: {
-        id: "minecraft:leather_leggings[tiered:tiered_modifier='tiered:armors/fortified', trim={material:'minecraft:gold', pattern:'minecraft:eye'}, dyed_color={rgb:4673362}]",
+        id: "minecraft:leather_leggings[ trim={material:'minecraft:gold', pattern:'minecraft:eye'}, dyed_color={rgb:4673362}]",
         enchantments: {
           guaranteed: {
             "minecraft:protection": 2
@@ -115,7 +115,7 @@ let BOSS_2: IMiniBoss = {
         }
       },
       feet: {
-        id: "minecraft:leather_boots[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:gold', pattern:'minecraft:eye'}, dyed_color={rgb:4673362}]",
+        id: "minecraft:leather_boots[ trim={material:'minecraft:gold', pattern:'minecraft:eye'}, dyed_color={rgb:4673362}]",
         enchantments: {
           guaranteed: {
             "minecraft:protection": 2
@@ -145,10 +145,10 @@ let BOSS_3: IMiniBoss = {
     mainHand: {
       id: "minecraft:iron_axe"
     },
-    head: { id: "minecraft:golden_helmet[tiered:tiered_modifier='tiered:armors/fortified', trim={material:'minecraft:amethyst', pattern:'minecraft:vex'}]" },
-    chest: { id: "minecraft:golden_chestplate[tiered:tiered_modifier='tiered:armors/fortified', trim={material:'minecraft:amethyst', pattern:'minecraft:vex'}]" },
-    legs: { id: "minecraft:golden_leggings[tiered:tiered_modifier='tiered:armors/fortified', trim={material:'minecraft:amethyst', pattern:'minecraft:vex'}]" },
-    feet: { id: "minecraft:golden_boots[tiered:tiered_modifier='tiered:armors/fortified', trim={material:'minecraft:amethyst', pattern:'minecraft:vex'}]" }
+    head: { id: "minecraft:golden_helmet[ trim={material:'minecraft:amethyst', pattern:'minecraft:vex'}]" },
+    chest: { id: "minecraft:golden_chestplate[ trim={material:'minecraft:amethyst', pattern:'minecraft:vex'}]" },
+    legs: { id: "minecraft:golden_leggings[ trim={material:'minecraft:amethyst', pattern:'minecraft:vex'}]" },
+    feet: { id: "minecraft:golden_boots[ trim={material:'minecraft:amethyst', pattern:'minecraft:vex'}]" }
   },
   phases: [
     {
@@ -225,10 +225,10 @@ let BOSS_4: IMiniBoss = {
   spawnWeight: 1,
   classe: "archer_sniper",
   equipment: {
-    head: { id: "minecraft:chainmail_helmet[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" },
-    chest: { id: "minecraft:chainmail_chestplate[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" },
-    legs: { id: "minecraft:chainmail_leggings[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" },
-    feet: { id: "minecraft:chainmail_boots[tiered:tiered_modifier='tiered:standard_armors/common', trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" }
+    head: { id: "minecraft:chainmail_helmet[ trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" },
+    chest: { id: "minecraft:chainmail_chestplate[ trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" },
+    legs: { id: "minecraft:chainmail_leggings[ trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" },
+    feet: { id: "minecraft:chainmail_boots[ trim={material:'minecraft:copper', pattern:'minecraft:sentry'}]" }
   },
   phases: [
     {
@@ -415,10 +415,10 @@ let BOSS_6: IMiniBoss = {
           { id: "minecraft:knockback", minLevel: 1, maxLevel: 2, chance: 0.4 }
         ]
       },
-      head: { id: "minecraft:iron_helmet[tiered:tiered_modifier='tiered:armors/fortified', trim={material:'minecraft:iron', pattern:'minecraft:shaper'}]" },
-      chest: { id: "minecraft:iron_chestplate[tiered:tiered_modifier='tiered:armors/fortified', trim={material:'minecraft:iron', pattern:'minecraft:shaper'}]" },
-      legs: { id: "minecraft:iron_leggings[tiered:tiered_modifier='tiered:armors/fortified', trim={material:'minecraft:iron', pattern:'minecraft:shaper'}]" },
-      feet: { id: "minecraft:iron_boots[tiered:tiered_modifier='tiered:armors/fortified', trim={material:'minecraft:iron', pattern:'minecraft:shaper'}]" }
+      head: { id: "minecraft:iron_helmet[ trim={material:'minecraft:iron', pattern:'minecraft:shaper'}]" },
+      chest: { id: "minecraft:iron_chestplate[ trim={material:'minecraft:iron', pattern:'minecraft:shaper'}]" },
+      legs: { id: "minecraft:iron_leggings[ trim={material:'minecraft:iron', pattern:'minecraft:shaper'}]" },
+      feet: { id: "minecraft:iron_boots[ trim={material:'minecraft:iron', pattern:'minecraft:shaper'}]" }
     }
   },
   phases: [
@@ -616,6 +616,7 @@ let BOSS_9: IMiniBoss = {
   difficulty: "RAID",
   id: "minecraft:skeleton",
   name: "§bGuardião de Cristal",
+  bloodMoon: true,
   health: 2000,
   attack: 12,
   armor: 10,
@@ -641,10 +642,10 @@ let BOSS_9: IMiniBoss = {
       id: "minecraft:tipped_arrow[minecraft:potion_contents='minecraft:strong_slowness']",
       count: 1
     },
-    head: { id: "minecraft:diamond_helmet[tiered:tiered_modifier='tiered:armors/resilient', trim={material:'minecraft:emerald', pattern:'minecraft:silence'}]" },
-    chest: { id: "minecraft:diamond_chestplate[tiered:tiered_modifier='tiered:armors/resilient', trim={material:'minecraft:emerald', pattern:'minecraft:silence'}]" },
-    legs: { id: "minecraft:diamond_leggings[tiered:tiered_modifier='tiered:armors/resilient', trim={material:'minecraft:emerald', pattern:'minecraft:silence'}]" },
-    feet: { id: "minecraft:diamond_boots[tiered:tiered_modifier='tiered:armors/resilient', trim={material:'minecraft:emerald', pattern:'minecraft:silence'}]" }
+    head: { id: "minecraft:diamond_helmet[ trim={material:'minecraft:emerald', pattern:'minecraft:silence'}]" },
+    chest: { id: "minecraft:diamond_chestplate[ trim={material:'minecraft:emerald', pattern:'minecraft:silence'}]" },
+    legs: { id: "minecraft:diamond_leggings[ trim={material:'minecraft:emerald', pattern:'minecraft:silence'}]" },
+    feet: { id: "minecraft:diamond_boots[ trim={material:'minecraft:emerald', pattern:'minecraft:silence'}]" }
   },
   phases: [
     {
@@ -765,7 +766,7 @@ let BOSS_10: IMiniBoss = {
       id: "minecraft:shield"
     },
     head: {
-      id: "minecraft:diamond_helmet[tiered:tiered_modifier='tiered:armors/resilient', trim={material:'minecraft:amethyst', pattern:'minecraft:eye'}]",
+      id: "minecraft:diamond_helmet[ trim={material:'minecraft:amethyst', pattern:'minecraft:eye'}]",
       enchantments: {
         guaranteed: {
           "minecraft:protection": 3,
@@ -774,7 +775,7 @@ let BOSS_10: IMiniBoss = {
       }
     },
     chest: {
-      id: "minecraft:diamond_chestplate[tiered:tiered_modifier='tiered:armors/resilient', trim={material:'minecraft:amethyst', pattern:'minecraft:eye'}]",
+      id: "minecraft:diamond_chestplate[ trim={material:'minecraft:amethyst', pattern:'minecraft:eye'}]",
       enchantments: {
         guaranteed: {
           "minecraft:protection": 3,
@@ -783,7 +784,7 @@ let BOSS_10: IMiniBoss = {
       }
     },
     legs: {
-      id: "minecraft:diamond_leggings[tiered:tiered_modifier='tiered:armors/resilient', trim={material:'minecraft:amethyst', pattern:'minecraft:eye'}]",
+      id: "minecraft:diamond_leggings[ trim={material:'minecraft:amethyst', pattern:'minecraft:eye'}]",
       enchantments: {
         guaranteed: {
           "minecraft:protection": 3,
@@ -792,7 +793,7 @@ let BOSS_10: IMiniBoss = {
       }
     },
     feet: {
-      id: "minecraft:diamond_boots[tiered:tiered_modifier='tiered:armors/resilient', trim={material:'minecraft:amethyst', pattern:'minecraft:eye'}]",
+      id: "minecraft:diamond_boots[ trim={material:'minecraft:amethyst', pattern:'minecraft:eye'}]",
       enchantments: {
         guaranteed: {
           "minecraft:protection": 3,

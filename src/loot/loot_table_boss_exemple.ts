@@ -41,3 +41,34 @@ LootJS.lootTables((e) => {
     p.addEntry(LootEntry.of("minecraft:elytra").setCount([1, 1]).withWeight(5));
   });
 });
+
+LootJS.modifiers((e) => {
+  let removeItems = [
+    // Ender Remastered itens
+    "endrem:black_eye",
+    "endrem:evil_eye",
+    "endrem:witch_pupil",
+    "endrem:guardian_eye",
+    "endrem:magical_eye",
+    "endrem:undead_eye",
+    "endrem:lost_eye",
+    "endrem:exotic_eye",
+    "endrem:cursed_eye",
+    "endrem:wither_eye",
+    "endrem:nether_eye",
+    "endrem:witch_eye",
+    "endrem:corrupted_eye",
+    "endrem:cold_eye",
+    "endrem:cryptic_eye",
+    "endrem:old_eye",
+    "endrem:rogue_eye",
+    // Nether Remastered itens
+    "nether_remastered:bottled_nether_essence",
+    "nether_remastered:seal_piece_1",
+    "nether_remastered:seal_piece_2",
+    "nether_remastered:seal_piece_3",
+    "nether_remastered:seal_piece_4"
+  ];
+
+  e.addTableModifier(/.*/).removeLoot(removeItems);
+});

@@ -62,20 +62,22 @@ function getBossActive(server: $MinecraftServer): { boss: $LivingEntity | null; 
   };
 }
 
-function getRandomBoss(): IMiniBoss {
-  let totalWeight = MINIBOSSES.reduce((sum, boss) => sum + boss.spawnWeight, 0);
-  let random = Math.random() * totalWeight;
-  for (let boss of MINIBOSSES) {
-    random -= boss.spawnWeight;
-    if (random <= 0) {
-      return boss;
-    }
-  }
-  return MINIBOSSES[0];
+function getRandomBoss(bloodMoon: boolean): IMiniBoss {
+  // 1. Filtra a lista
+  let bossList = bloodMoon ? MINIBOSSES.filter((b) => b.bloodMoon === true) : MINIBOSSES.filter((b) => b.bloodMoon !== true);
+
+  // Segurança: se a lista filtrada estiver vazia, usa a lista completa
+  if (bossList.length === 0) bossList = MINIBOSSES;
+
+  // 2. Sorteia um índice baseado no tamanho da lista FILTRADA
+  let max = bossList.length;
+  let choice = Math.floor(Math.random() * max);
+
+  // 3. RETORNA DA LISTA FILTRADA (O segredo está aqui)
+  return bossList[choice];
 }
 
 // CORE Para quantidade de players online
-
 function countOnlinePlayers(level: $ServerLevel): number {
   let allPlayers = level.players;
   let onlinePlayers = allPlayers.filter((player) => player && player.isAlive() && !player.isSpectator());
