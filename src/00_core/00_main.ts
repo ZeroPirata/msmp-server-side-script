@@ -1,5 +1,3 @@
-console.log("[MSMP] Carregando core principais...");
-
 // Server
 let VIDEO_TAG = "msmp_player_watched_video";
 let VIDEO_URL = "https://www.youtube.com/watch?v=flXJh_1wJ0M";

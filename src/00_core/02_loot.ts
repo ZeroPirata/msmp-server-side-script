@@ -6,8 +6,6 @@ import { $MinecraftServer } from "net.minecraft.server.MinecraftServer";
 import { $Level } from "net.minecraft.world.level.Level";
 import { $ChunkPos } from "net.minecraft.world.level.ChunkPos";
 
-console.log("[MSMP] Carregando core de loot...");
-
 function removeChestKey(playerName: string, server: $MinecraftServer): void {
   let key = `chest_key_${playerName}`;
   server.persistentData.remove(key);

@@ -61,9 +61,10 @@ function enterPhase(boss: $LivingEntity, phase: IBossPhase, phaseIndex: number):
   if (phase.name) {
     nomeFase = phase.name;
   }
-  level.runCommandSilent(`title @a times 10 40 10`);
-  level.runCommandSilent(`title @a title {"text":"${nomeFase}","color":"red","bold":true}`);
-  level.runCommandSilent(`title @a subtitle {"text":"Iniciou a ${phaseIndex}º fase","color":"gold"}`);
+  // Títulos apenas para players num raio de 64 blocos
+  level.runCommandSilent(`execute positioned ${boss.x} ${boss.y} ${boss.z} run title @a[distance=..64] times 10 40 10`);
+  level.runCommandSilent(`execute positioned ${boss.x} ${boss.y} ${boss.z} run title @a[distance=..64] title {"text":"${nomeFase}","color":"red","bold":true}`);
+  level.runCommandSilent(`execute positioned ${boss.x} ${boss.y} ${boss.z} run title @a[distance=..64] subtitle {"text":"Iniciou a ${phaseIndex}º fase","color":"gold"}`);
   level.runCommandSilent(`playsound minecraft:entity.wither.spawn hostile @a ${boss.x} ${boss.y} ${boss.z} 2 1`);
   level.runCommandSilent(`particle minecraft:explosion_emitter ${boss.x} ${boss.y + 1} ${boss.z} 1 1 1 0 5 force @a`);
   level.runCommandSilent(`particle minecraft:soul_fire_flame ${boss.x} ${boss.y} ${boss.z} 2 2 2 0.1 100 force @a`);

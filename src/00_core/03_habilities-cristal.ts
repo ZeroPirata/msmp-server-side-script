@@ -356,9 +356,10 @@ function handleRitualTimeout(boss: $LivingEntity, level: $ServerLevel, phaseInde
   level.runCommandSilent(`playsound minecraft:entity.ender_dragon.growl hostile @a[distance=..64] ${boss.x} ${boss.y} ${boss.z} 2 0.8`);
   level.runCommandSilent(`tellraw @a[distance=..64] "§4§l⚠ RITUAL COMPLETADO!"`);
   level.runCommandSilent(`tellraw @a[distance=..64] "§c§l⚔ ${bossName} absorveu todo o poder dos cristais! (+${totalDamageBuff.toFixed(1)} dano)"`);
-  level.runCommandSilent(`title @a times 10 60 10`);
-  level.runCommandSilent(`title @a title {"text":"RITUAL COMPLETADO","color":"dark_red","bold":true}`);
-  level.runCommandSilent(`title @a subtitle {"text":"Boss está ULTRA PODEROSO!","color":"red"}`);
+  // Títulos apenas para players num raio de 64 blocos
+  level.runCommandSilent(`execute positioned ${boss.x} ${boss.y} ${boss.z} run title @a[distance=..64] times 10 60 10`);
+  level.runCommandSilent(`execute positioned ${boss.x} ${boss.y} ${boss.z} run title @a[distance=..64] title {"text":"RITUAL COMPLETADO","color":"dark_red","bold":true}`);
+  level.runCommandSilent(`execute positioned ${boss.x} ${boss.y} ${boss.z} run title @a[distance=..64] subtitle {"text":"Boss está ULTRA PODEROSO!","color":"red"}`);
 }
 
 function handleAllCrystalsDestroyed(boss: $LivingEntity, level: $ServerLevel, phaseIndex: number, damageAccumulated: number): void {

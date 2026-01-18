@@ -1,7 +1,5 @@
 import { $MinecraftServer } from "net.minecraft.server.MinecraftServer";
 
-console.log("[MSMP] Carregando evento Blood Moon...");
-
 let lastBloodMoonCheck = 0;
 
 ServerEvents.tick((event) => {

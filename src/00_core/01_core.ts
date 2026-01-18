@@ -6,8 +6,6 @@ import { $MinecraftServer } from "net.minecraft.server.MinecraftServer";
 import { $Level } from "net.minecraft.world.level.Level";
 import { $ChunkPos } from "net.minecraft.world.level.ChunkPos";
 
-console.log("[MSMP] Carregando core gerais do sistema...");
-
 // CORE Para funções de configuração
 
 function saveMsmpConfig(server: $MinecraftServer, configObj: any): void {

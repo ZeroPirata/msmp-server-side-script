@@ -44,5 +44,4 @@ function removeBossChunkForceLoad(level: $ServerLevel, bossUuid: string): void {
       level.server.runCommandSilent(`forceload remove ${(chunkX + x) * 16} ${(chunkZ + z) * 16}`);
     }
   }
-  console.log(`[CHUNKS] Área de boss ${bossUuid} liberada.`);
 }

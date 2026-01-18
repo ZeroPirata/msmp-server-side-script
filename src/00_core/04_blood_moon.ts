@@ -3,8 +3,6 @@ import { $ServerLevel } from "net.minecraft.server.level.ServerLevel";
 import { $BlockPos } from "net.minecraft.core.BlockPos";
 import { $Entity } from "net.minecraft.world.entity.Entity";
 
-console.log("[MSMP] Carregando sistema Blood Moon...");
-
 // ============================================
 // CONFIGURAÇÕES DA BLOOD MOON
 // ============================================
@@ -50,6 +48,7 @@ interface BloodMoonState {
 }
 
 let currentBloodMoonState: BloodMoonState | null = null;
+let lastSoundTick: Record<string, number> = {}; // Tracker para sons ambiente por player
 
 // ============================================
 // FUNÇÕES DE CONFIGURAÇÃO
@@ -169,6 +168,9 @@ function endBloodMoon(server: $MinecraftServer): void {
   // Calcular próxima blood moon
   let nextDay = calculateNextBloodMoonDay(config, currentDay);
 
+  // IMPORTANTE: Salvar estado de boss morto ANTES de resetar
+  let wasBossKilled = currentBloodMoonState.bossKilled;
+
   currentBloodMoonState.isActive = false;
   currentBloodMoonState.nextBloodMoonDay = nextDay;
   currentBloodMoonState.bossSpawned = false;
@@ -177,7 +179,7 @@ function endBloodMoon(server: $MinecraftServer): void {
   saveBloodMoonState(server, currentBloodMoonState);
 
   if (config.ANNOUNCE_END) {
-    announceBloodMoonEnd(server, currentBloodMoonState.bossKilled);
+    announceBloodMoonEnd(server, wasBossKilled);
   }
 }
 
@@ -208,7 +210,6 @@ function spawnBloodMoonBoss(server: $MinecraftServer): void {
     return;
   }
 
-  console.log(`[MSMP Blood Moon] Preparando spawn do boss ${bossConfig.name}...`);
   // Gerar posição para o boss
   let msmpConfig = getMsmpConfig(server);
   let pos = generateBossPosition(overworld, [], msmpConfig);
@@ -257,7 +258,6 @@ function checkBossKilled(server: $MinecraftServer): void {
     currentBloodMoonState.bossKilled = true;
     saveBloodMoonState(server, currentBloodMoonState);
     announceBloodMoonBossKilled(server);
-    console.log("[MSMP Blood Moon] Boss da Blood Moon foi derrotado!");
   }
 }
 
@@ -339,8 +339,12 @@ function spawnBloodMoonParticles(player: any): void {
   // Criamos uma área de dispersão de 15 blocos (30 total) a 20 blocos de altura
   // Comando: particle <nome> <x> <y> <z> <deltaX> <deltaY> <deltaZ> <velocidade> <quantidade>
 
-  // Poeira Vermelha Intensa no céu
-  server.runCommandSilent(`execute at ${uuid} run particle minecraft:dust 1 0 0 2 ~ ~20 ~ 15 5 15 0.1 10`);
+  // Poeira Vermelha Intensa no céu - mais densa e espalhada
+  server.runCommandSilent(`execute at ${uuid} run particle minecraft:dust 1 0 0 2 ~ ~25 ~ 20 5 20 0.1 15`);
+
+  // Adicionar mais layers de partículas vermelhas para criar um "fog" vermelho
+  server.runCommandSilent(`execute at ${uuid} run particle minecraft:dust 0.8 0 0 1.5 ~ ~15 ~ 15 5 15 0.1 10`);
+  server.runCommandSilent(`execute at ${uuid} run particle minecraft:dust 0.6 0 0 1.2 ~ ~10 ~ 12 5 12 0.1 8`);
 
   // Esporos Carmesim caindo
   server.runCommandSilent(`execute at ${uuid} run particle minecraft:crimson_spore ~ ~20 ~ 15 5 15 0.05 5`);
@@ -348,6 +352,9 @@ function spawnBloodMoonParticles(player: any): void {
   // 2. Partículas próximas ao chão (Névoa de sangue baixa)
   // Poeira Vermelha Escura
   server.runCommandSilent(`execute at ${uuid} run particle minecraft:dust 0.5 0 0 1 ~ ~1 ~ 5 0.5 5 0.01 5`);
+
+  // Névoa vermelha ao redor do player (meio-corpo)
+  server.runCommandSilent(`execute at ${uuid} run particle minecraft:dust 0.7 0 0 1 ~ ~1.5 ~ 3 1 3 0.01 8`);
 
   // OPCIONAL: Adiciona uma leve névoa de fumaça para dar volume
   server.runCommandSilent(`execute at ${uuid} run particle minecraft:ash ~ ~1 ~ 5 0.5 5 0.01 2`);

@@ -12,7 +12,7 @@ function spawnBossAtPositionMulti(server: $ServerLevel, pendingBoss: PendingBoss
   let chunkZ = Math.floor(z / 16);
 
   if (!server.getChunk(chunkX, chunkZ)) {
-    console.log(`[MULTI-BOSS] ERRO: Chunk não carregado em ${chunkX}, ${chunkZ}`);
+    console.error(`[MULTI-BOSS] ERRO: Chunk não carregado em ${chunkX}, ${chunkZ}`);
     return;
   }
 
@@ -32,7 +32,7 @@ function spawnMountedBoss(server: $ServerLevel, config: IMiniBoss, x: number, y:
 
   let boss = server.createEntity(config.id as any);
   if (!boss) {
-    console.log(`[MULTI-BOSS] Falha ao criar boss para montaria: ${config.id}`);
+    console.error(`[MULTI-BOSS] Falha ao criar boss para montaria: ${config.id}`);
     return;
   }
 
@@ -60,7 +60,6 @@ function spawnMountedBoss(server: $ServerLevel, config: IMiniBoss, x: number, y:
           currentBloodMoonState.bossUuid = living.uuid.toString();
           saveBloodMoonState(server.getServer(), currentBloodMoonState);
         }
-        console.log(`[MSMP Blood Moon] Boss montado ativado! UUID: ${living.uuid.toString()}`);
       }
     }
   });
@@ -70,14 +69,14 @@ function spawnStandardBoss(server: $ServerLevel, config: IMiniBoss, x: number, y
   isBloodMoon = isBloodMoon || false;
   let boss = server.createEntity(config.id as any);
   if (!boss) {
-    console.log(`[MULTI-BOSS] Falha ao criar boss: ${config.id}`);
+    console.error(`[MULTI-BOSS] Falha ao criar boss: ${config.id}`);
     return;
   }
 
   setupBaseEntity(boss, config, x, y, z);
   let living = asLiving(boss);
   if (!living) {
-    console.log(`[MULTI-BOSS] Erro ao converter para LivingEntity`);
+    console.error(`[MULTI-BOSS] Erro ao converter para LivingEntity`);
     return;
   }
 
@@ -101,7 +100,6 @@ function spawnStandardBoss(server: $ServerLevel, config: IMiniBoss, x: number, y
           currentBloodMoonState.bossUuid = living.uuid.toString();
           saveBloodMoonState(server.getServer(), currentBloodMoonState);
         }
-        console.log(`[MSMP Blood Moon] Boss ativado! UUID: ${living.uuid.toString()}`);
       }
     }
   });
@@ -110,7 +108,7 @@ function spawnStandardBoss(server: $ServerLevel, config: IMiniBoss, x: number, y
 function createMountEntity(server: $ServerLevel, mountConfig: MountConfig, x: number, y: number, z: number): $Entity | null {
   let mount = server.createEntity(mountConfig.id as any);
   if (!mount) {
-    console.log(`[MULTI-BOSS] Falha ao criar mount: ${mountConfig.id}`);
+    console.error(`[MULTI-BOSS] Falha ao criar mount: ${mountConfig.id}`);
     return null;
   }
 

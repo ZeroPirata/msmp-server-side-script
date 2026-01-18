@@ -8,8 +8,6 @@ import { $ChunkPos } from "net.minecraft.world.level.ChunkPos";
 import { $Heightmap } from "net.minecraft.world.level.levelgen.Heightmap";
 import { $Heightmap$Types } from "net.minecraft.world.level.levelgen.Heightmap$Types";
 
-console.log("[MSMP] Carregando core de boss...");
-
 function asLiving(entity: $Entity): $LivingEntity | null {
   return entity as unknown as $LivingEntity;
 }

@@ -6,8 +6,6 @@ import { $MinecraftServer } from "net.minecraft.server.MinecraftServer";
 import { $Level } from "net.minecraft.world.level.Level";
 import { $ChunkPos } from "net.minecraft.world.level.ChunkPos";
 
-console.log("[MSMP] Carregando core de entidade...");
-
 function basicStatusEnemys(mob: $LivingEntity, e: IEnemy): void {
   mob.getAttribute("minecraft:generic.max_health")?.setBaseValue(e.health || 20);
   mob.health = e.health;
