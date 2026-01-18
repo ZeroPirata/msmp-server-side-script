@@ -56,7 +56,6 @@ let currentBloodMoonState: BloodMoonState | null = null;
 // ============================================
 function saveBloodMoonConfig(server: $MinecraftServer, config: BloodMoonConfig): void {
   server.persistentData.putString(BLOOD_MOON_CONFIG_KEY, JSON.stringify(config));
-  console.log("[MSMP Blood Moon] Configuração salva!");
 }
 
 function getBloodMoonConfig(server: $MinecraftServer): BloodMoonConfig {
@@ -129,14 +128,23 @@ function startBloodMoon(server: $MinecraftServer, currentTick: number): void {
   currentBloodMoonState.bossUuid = null;
   currentBloodMoonState.bossKilled = false;
   saveBloodMoonState(server, currentBloodMoonState);
+  let overworld = server.overworld();
+
+  // CONGELAR O TEMPO (parar ciclo dia/noite)
+  server.runCommandSilent("gamerule doDaylightCycle false");
+  // Fixar o tempo na noite
+  overworld.setDayTime(18000);
 
   let config = getBloodMoonConfig(server);
+
+  // Ativar tempo tempestade se configurado
+  if (config.THUNDER_WEATHER) {
+    overworld.setWeatherParameters(0, 24000, true, true); // Chuva + Trovão
+  }
 
   if (config.ANNOUNCE_START) {
     announceBloodMoonStart(server);
   }
-
-  console.log("[MSMP Blood Moon] Blood Moon iniciada!");
 }
 
 function endBloodMoon(server: $MinecraftServer): void {
@@ -144,6 +152,13 @@ function endBloodMoon(server: $MinecraftServer): void {
 
   let config = getBloodMoonConfig(server);
   let overworld = server.overworld();
+
+  // DESCONGELAR O TEMPO (retomar ciclo dia/noite)
+  server.runCommandSilent("gamerule doDaylightCycle true");
+
+  // REMOVER BUFFS DE TODOS OS MOBS
+  removeBloodMoonBuffsFromMobs(server);
+  overworld.setWeatherParameters(6000, 0, false, false); // Tempo limpo
   let currentDay = Math.floor(overworld.getDayTime() / 24000);
 
   // Se o boss ainda está vivo, remove-lo
@@ -164,8 +179,6 @@ function endBloodMoon(server: $MinecraftServer): void {
   if (config.ANNOUNCE_END) {
     announceBloodMoonEnd(server, currentBloodMoonState.bossKilled);
   }
-
-  console.log(`[MSMP Blood Moon] Blood Moon finalizada! Próxima no dia ${nextDay}`);
 }
 
 function spawnBloodMoonBoss(server: $MinecraftServer): void {
@@ -174,7 +187,6 @@ function spawnBloodMoonBoss(server: $MinecraftServer): void {
   // IMPORTANTE: Marcar como spawnado IMEDIATAMENTE para evitar spawn duplo
   // Isso previne race condition onde a função pode ser chamada múltiplas vezes
   if (currentBloodMoonState.bossSpawned) {
-    console.log("[MSMP Blood Moon] Boss já foi spawnado, ignorando chamada duplicada.");
     return;
   }
 
@@ -213,7 +225,8 @@ function spawnBloodMoonBoss(server: $MinecraftServer): void {
   let pendingIndex = pendingBosses.length;
 
   // Spawnar o boss (ele ficará pendente até jogador se aproximar)
-  prepareBossSpawnMulti(server, overworld, bossConfig, pos, currentDay);
+  // silent=true para não mostrar mensagem de invasão normal
+  prepareBossSpawnMulti(server, overworld, bossConfig, pos, currentDay, true);
 
   // Marcar o boss pendente como Blood Moon boss
   if (pendingBosses[pendingIndex]) {
@@ -221,8 +234,6 @@ function spawnBloodMoonBoss(server: $MinecraftServer): void {
   }
 
   announceBloodMoonBossSpawn(server, bossConfig.name, pos);
-  console.log(`[MSMP Blood Moon] Boss ${bossConfig.name} preparado em X:${Math.floor(pos.getX())} Y:${Math.floor(pos.getY())} Z:${Math.floor(pos.getZ())}`);
-  console.log(`[MSMP Blood Moon] Boss será ativado quando um jogador se aproximar!`);
 }
 
 function removeBossIfAlive(server: $MinecraftServer, bossUuid: string): void {
@@ -230,7 +241,6 @@ function removeBossIfAlive(server: $MinecraftServer, bossUuid: string): void {
 
   if (boss && boss.isAlive()) {
     boss.kill();
-    console.log(`[MSMP Blood Moon] Boss removido (Blood Moon terminou sem ele ser morto)`);
     announceBloodMoonBossRemoved(server);
   }
 }
@@ -255,61 +265,40 @@ function checkBossKilled(server: $MinecraftServer): void {
 // ANÚNCIOS
 // ============================================
 function announceBloodMoonStart(server: $MinecraftServer): void {
-  server.tell([
-    Component.literal(""),
-    Component.literal("§4§l════════════════════════════════").bold(),
-    Component.literal("§c§l        🩸 BLOOD MOON 🩸").bold(),
-    Component.literal("§4§l════════════════════════════════").bold(),
-    Component.literal(""),
-    Component.literal("§7A lua está vermelha como sangue..."),
-    Component.literal("§7Um boss poderoso está prestes a surgir!"),
-    Component.literal(""),
-    Component.literal("§4§l════════════════════════════════").bold(),
-    Component.literal("")
-  ]);
+  server.tell(Component.literal("§4§l═══════════════════════════════").bold());
+  server.tell(Component.literal("§c§l🩸 BLOOD MOON 🩸").bold());
+  server.tell(Component.literal("§4§l═══════════════════════════════").bold());
+  server.tell(Component.literal("§7A lua vermelha surgiu..."));
+  server.tell(Component.literal("§7Boss poderoso chegando!"));
+  server.tell(Component.literal("§4§l═══════════════════════════════").bold());
 }
 
 function announceBloodMoonEnd(server: $MinecraftServer, bossKilled: boolean): void {
   if (bossKilled) {
-    server.tell([
-      Component.literal(""),
-      Component.literal("§a§l════════════════════════════════").bold(),
-      Component.literal("§a§l      🌙 BLOOD MOON VENCIDA 🌙").bold(),
-      Component.literal("§a§l════════════════════════════════").bold(),
-      Component.literal(""),
-      Component.literal("§7O boss foi derrotado e a lua voltou ao normal!"),
-      Component.literal("§aParabéns aos guerreiros!"),
-      Component.literal(""),
-      Component.literal("§a§l════════════════════════════════").bold(),
-      Component.literal("")
-    ]);
+    server.tell(Component.literal("§a§l═══════════════════════════════").bold());
+    server.tell(Component.literal("§a§l🌙 BLOOD MOON VENCIDA 🌙").bold());
+    server.tell(Component.literal("§a§l═══════════════════════════════").bold());
+    server.tell(Component.literal("§7Boss derrotado!"));
+    server.tell(Component.literal("§aParabéns guerreiros!"));
+    server.tell(Component.literal("§a§l═══════════════════════════════").bold());
   } else {
-    server.tell([
-      Component.literal(""),
-      Component.literal("§6§l════════════════════════════════").bold(),
-      Component.literal("§6§l      🌙 BLOOD MOON TERMINOU 🌙").bold(),
-      Component.literal("§6§l════════════════════════════════").bold(),
-      Component.literal(""),
-      Component.literal("§7A lua voltou ao normal..."),
-      Component.literal("§cO boss não foi derrotado e desapareceu nas sombras."),
-      Component.literal(""),
-      Component.literal("§6§l════════════════════════════════").bold(),
-      Component.literal("")
-    ]);
+    server.tell(Component.literal("§6§l═══════════════════════════════").bold());
+    server.tell(Component.literal("§6§l🌙 BLOOD MOON TERMINOU 🌙").bold());
+    server.tell(Component.literal("§6§l═══════════════════════════════").bold());
+    server.tell(Component.literal("§7A lua voltou ao normal"));
+    server.tell(Component.literal("§cBoss fugiu nas sombras"));
+    server.tell(Component.literal("§6§l═══════════════════════════════").bold());
   }
 }
 
 function announceBloodMoonBossSpawn(server: $MinecraftServer, bossName: string, pos: $BlockPos): void {
-  server.tell([
-    Component.literal(""),
-    Component.literal("§4§l⚔ BOSS DA BLOOD MOON ⚔").bold(),
-    Component.literal(""),
-    Component.literal(`§7${bossName} §capareceu!`),
-    Component.literal(`§7Localização: §bX: ${Math.floor(pos.getX())} Y: ${Math.floor(pos.getY())} Z: ${Math.floor(pos.getZ())}`),
-    Component.literal(""),
-    Component.literal("§cDerrote-o antes que a noite acabe!"),
-    Component.literal("")
-  ]);
+  server.tell(Component.literal("§4§l═══════════════════════════════").bold());
+  server.tell(Component.literal("§4§l⚔ BLOOD MOON BOSS ⚔").bold());
+  server.tell(Component.literal("§4§l═══════════════════════════════").bold());
+  server.tell(Component.literal(`§7${bossName} §capareceu!`));
+  server.tell(Component.literal(`§bX:${Math.floor(pos.getX())} Y:${Math.floor(pos.getY())} Z:${Math.floor(pos.getZ())}`));
+  server.tell(Component.literal("§c⚠ Derrote-o rápido!"));
+  server.tell(Component.literal("§4§l═══════════════════════════════").bold());
 }
 
 function announceBloodMoonBossRemoved(server: $MinecraftServer): void {
@@ -317,5 +306,67 @@ function announceBloodMoonBossRemoved(server: $MinecraftServer): void {
 }
 
 function announceBloodMoonBossKilled(server: $MinecraftServer): void {
-  server.tell([Component.literal(""), Component.literal("§a§l✓ O boss da Blood Moon foi derrotado!").bold(), Component.literal("")]);
+  server.tell(Component.literal("§a§l✓ O boss da Blood Moon foi derrotado!").bold());
+}
+
+function applyBloodMoonEffects(server: $MinecraftServer): void {
+  if (!currentBloodMoonState || !currentBloodMoonState.isActive) return;
+
+  let config = getBloodMoonConfig(server);
+  let overworld = server.overworld();
+
+  // Aplicar efeitos visuais e sonoros em todos os jogadores online
+  overworld.players.forEach((player) => {
+    if (player.isSpectator() || !player.isAlive()) return;
+
+    // Partículas vermelhas no céu (efeito de lua vermelha)
+    if (config.SKY_COLOR) {
+      spawnBloodMoonParticles(player);
+    }
+
+    // Sons ambiente assustadores
+    if (config.AMBIENT_SOUNDS) {
+      playBloodMoonAmbientSound(player);
+    }
+  });
+}
+
+function spawnBloodMoonParticles(player: any): void {
+  let server = player.server;
+  let uuid = player.uuid.toString();
+
+  // 1. Partículas no céu (Poeira Vermelha e Esporos Carmesim)
+  // Criamos uma área de dispersão de 15 blocos (30 total) a 20 blocos de altura
+  // Comando: particle <nome> <x> <y> <z> <deltaX> <deltaY> <deltaZ> <velocidade> <quantidade>
+
+  // Poeira Vermelha Intensa no céu
+  server.runCommandSilent(`execute at ${uuid} run particle minecraft:dust 1 0 0 2 ~ ~20 ~ 15 5 15 0.1 10`);
+
+  // Esporos Carmesim caindo
+  server.runCommandSilent(`execute at ${uuid} run particle minecraft:crimson_spore ~ ~20 ~ 15 5 15 0.05 5`);
+
+  // 2. Partículas próximas ao chão (Névoa de sangue baixa)
+  // Poeira Vermelha Escura
+  server.runCommandSilent(`execute at ${uuid} run particle minecraft:dust 0.5 0 0 1 ~ ~1 ~ 5 0.5 5 0.01 5`);
+
+  // OPCIONAL: Adiciona uma leve névoa de fumaça para dar volume
+  server.runCommandSilent(`execute at ${uuid} run particle minecraft:ash ~ ~1 ~ 5 0.5 5 0.01 2`);
+}
+
+function playBloodMoonAmbientSound(player: any): void {
+  let playerUuid = player.uuid.toString();
+  let currentTick = player.level.server.tickCount;
+
+  // Tocar som apenas a cada 10 segundos para cada jogador
+  if (lastSoundTick[playerUuid] && currentTick - lastSoundTick[playerUuid] < 200) {
+    return;
+  }
+
+  lastSoundTick[playerUuid] = currentTick;
+
+  // Sons assustadores aleatórios
+  let sounds = ["minecraft:entity.ender_dragon.growl", "minecraft:entity.warden.ambient", "minecraft:entity.wither.ambient", "minecraft:ambient.cave", "minecraft:block.portal.ambient"];
+
+  let randomSound = sounds[Math.floor(Math.random() * sounds.length)];
+  player.playSound(randomSound, 0.3, 0.8);
 }

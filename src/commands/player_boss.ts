@@ -264,7 +264,7 @@ ServerEvents.commandRegistry((event) => {
               saveNightState(server, currentNightState);
 
               // Spawna boss
-              prepareBossSpawnMulti(overworld.server, overworld, bossConfig, pos, currentDay);
+              prepareBossSpawnMulti(overworld.server, overworld, bossConfig, pos, currentDay, false);
 
               let diffColor = getDifficultyColor(difficulty);
               source.sendSuccess(Component.literal(`§a✅ Boss forçado com sucesso!`).bold(), true);

@@ -2,7 +2,7 @@ import { $ServerLevel } from "net.minecraft.server.level.ServerLevel";
 import { $BlockPos } from "net.minecraft.core.BlockPos";
 import { $MinecraftServer } from "net.minecraft.server.MinecraftServer";
 
-function prepareBossSpawnMulti(server: $MinecraftServer, level: $ServerLevel, bossConfig: IMiniBoss, pos: $BlockPos, spawnDay: number): void {
+function prepareBossSpawnMulti(server: $MinecraftServer, level: $ServerLevel, bossConfig: IMiniBoss, pos: $BlockPos, spawnDay: number, silent?: boolean): void {
   forceLoadBossChunk(level, pos);
   let pendingBoss: PendingBossData = {
     config: bossConfig,
@@ -15,14 +15,17 @@ function prepareBossSpawnMulti(server: $MinecraftServer, level: $ServerLevel, bo
 
   pendingBosses.push(pendingBoss);
 
-  let x = Math.floor(pos.getX());
-  let y = Math.floor(pos.getY());
-  let z = Math.floor(pos.getZ());
+  // Só mostrar mensagem se não for silent (usado para Blood Moon)
+  if (!silent) {
+    let x = Math.floor(pos.getX());
+    let y = Math.floor(pos.getY());
+    let z = Math.floor(pos.getZ());
 
-  server.players.tell(Component.gold("§l--------------------------------"));
-  server.players.tell(Component.red("§l💥 ALERTA DE INVASÃO IMINENTE! 💥"));
-  server.players.tell([Component.gold("LOCALIZAÇÃO: "), Component.green(`X: ${x} | Y: ${y} | Z: ${z}`)]);
-  server.players.tell(Component.gold("§l--------------------------------"));
+    server.players.tell(Component.gold("§l--------------------------------"));
+    server.players.tell(Component.red("§l💥 ALERTA DE INVASÃO IMINENTE! 💥"));
+    server.players.tell([Component.gold("LOCALIZAÇÃO: "), Component.green(`X: ${x} | Y: ${y} | Z: ${z}`)]);
+    server.players.tell(Component.gold("§l--------------------------------"));
+  }
 }
 
 function checkPendingBosses(server: $ServerLevel): void {

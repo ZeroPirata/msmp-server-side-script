@@ -18,12 +18,16 @@ ServerEvents.tick((e) => {
     if (boss) {
       if (boss.isAlive() && boss.isAddedToLevel()) {
         bossPhases(boss, bossData.config, server, bossData.uuid);
+
+        // Atualizar bossbar com vida atual a cada tick
+        if (server.tickCount % 5 === 0) {
+          let healthPercent = boss.health / boss.maxHealth;
+          updateBossBarForBoss(bossData.uuid, server, undefined, healthPercent);
+        }
       } else if (!boss.isAlive()) {
         removeBossChunkForceLoad(boss.level, bossData.uuid);
         unregisterActiveBoss(server, bossData.uuid);
       }
-    } else {
-      console.log(`[MSMP] Boss ${bossData.uuid} está fora de alcance, aguardando...`);
     }
   }
   // --- FIM DA ALTERAÇÃO ---

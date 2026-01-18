@@ -15,18 +15,46 @@ function asLiving(entity: $Entity): $LivingEntity | null {
 }
 
 function getSafeSpawnPos(level: $ServerLevel, x: number, z: number, spawnY: number): BlockPos {
+  // Forçar carregamento do chunk antes de obter a altura
+  let chunkX = x >> 4;
+  let chunkZ = z >> 4;
+  let chunk = level.getChunk(chunkX, chunkZ);
+
+  // Obter altura da superfície (MOTION_BLOCKING_NO_LEAVES ignora folhas)
   let surfaceY = level.getHeight(HeightmapTypes.MOTION_BLOCKING_NO_LEAVES, x, z);
 
+  // Se retornou valor inválido (chunk não carregado ou sem blocos sólidos)
+  // tentar WORLD_SURFACE que considera mais tipos de blocos
+  if (surfaceY <= level.getMinBuildHeight()) {
+    surfaceY = level.getHeight(HeightmapTypes.WORLD_SURFACE, x, z);
+  }
+
+  // Se ainda está inválido, buscar manualmente de cima para baixo
+  if (surfaceY <= level.getMinBuildHeight()) {
+    surfaceY = level.getMaxBuildHeight() - 1;
+    let testPos = new BlockPos(x, surfaceY, z);
+
+    // Descer até encontrar um bloco sólido
+    while (surfaceY > 0) {
+      let blockState = level.getBlockState(testPos);
+      if (blockState.isSolid()) {
+        surfaceY++; // Spawnar em cima do bloco sólido
+        break;
+      }
+      surfaceY--;
+      testPos = testPos.below();
+    }
+  }
+
+  // Garantir altura mínima segura (nunca abaixo de Y: 60)
+  if (surfaceY < 60) {
+    surfaceY = 64;
+  }
+
+  // Limitar altura máxima baseada no spawn
   let maxY = spawnY + 15;
   if (surfaceY > maxY) {
     surfaceY = maxY;
-    let tempPos = new BlockPos(x, surfaceY, z);
-    while (surfaceY > level.getMinBuildHeight()) {
-      let blockBelow = level.getBlockState(tempPos.below());
-      if (blockBelow.isSolid()) break;
-      surfaceY--;
-      tempPos = tempPos.below();
-    }
   }
 
   return new BlockPos(x, surfaceY, z);

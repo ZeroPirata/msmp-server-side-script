@@ -5,7 +5,6 @@ type PhaseAbilityType =
   | "shoot_projectiles"
   | "aoe_damage"
   | "teleport"
-  | "spawn_totems"
   | "weather_change"
   | "potion_effects"
   | "enrage"

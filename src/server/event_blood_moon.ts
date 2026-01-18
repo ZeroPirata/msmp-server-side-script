@@ -30,7 +30,6 @@ ServerEvents.tick((event) => {
       let daysUntilNext = randomBetween(config.MIN_DAYS, config.MAX_DAYS);
       currentBloodMoonState = initBloodMoonState(currentDay, daysUntilNext);
       saveBloodMoonState(server, currentBloodMoonState);
-      console.log(`[MSMP Blood Moon] Sistema inicializado. Próxima Blood Moon no dia ${currentBloodMoonState.nextBloodMoonDay}`);
     }
   }
 
@@ -54,10 +53,8 @@ ServerEvents.tick((event) => {
       spawnBloodMoonBoss(server);
     }
 
-    // Verificar se o boss foi morto
-    if (currentBloodMoonState.bossSpawned) {
-      checkBossKilled(server);
-    }
+    // Aplicar efeitos visuais da Blood Moon
+    applyBloodMoonEffects(server);
   } else {
     // Verificar se é hora de iniciar uma Blood Moon
     if (currentDay >= currentBloodMoonState.nextBloodMoonDay && isNight) {
